@@ -1,0 +1,366 @@
+@import url("https://api.fontshare.com/v2/css?f[]=bespoke-sans@300,301,400,401,500,501,700,701&f[]=rosaline@400&display=swap");
+@font-face {
+	font-family: "Themify";
+	src: url("../assets/themify.woff") format("woff");
+}
+* {
+	font-family: var(--main-font);
+	color: var(--base);
+}
+
+:root {
+	/* color variables */
+	--accent: #ffd600;
+	--base: #433b3b;
+	--links: #7c7b7b;
+	--white: #ffffff;
+	--black: #000000;
+	--pale: #dad5d5;
+	--individualcar: #fec7c7;
+
+	--transparent: #ffffff00;
+
+	/* background colors */
+	--car-bg: #e8e7e7;
+	--bg1: #f0e3d9;
+	--bg2: #e5eded;
+	--bg3: #e2e7e0;
+	--bg4: #f1ebcd;
+
+	/* space variables */
+	--grid-gap: 10px;
+	--space-x: 30px;
+	--space-xs: 5px;
+	--space-s: 15px;
+	--space-m: 25px;
+	--space-l: 35px;
+	--space-xl: 45px;
+
+	/* font variables */
+	--main-font: "Bespoke Sans", sans-serif;
+	--second-font: "Rosaline", cursive;
+	--icons-themify: "Themify";
+
+	/* font size variables */
+	--p: 16px;
+	--h1: calc(var(--h2) * 1.2);
+	--h2: calc(var(--h3) * 1.2);
+	--h3: calc(var(--h4) * 1.2);
+	--h4: calc(var(--h5) * 1.2);
+	--h5: calc(var(--h6) * 1.2);
+	--h6: calc(var(--p) * 1.2);
+	--small: calc(var(--p) * 0.8);
+	--smaller: 0.6em;
+	--larger: 2em;
+	--weigth-m: 500;
+
+	text-underline-offset: 0.3em;
+}
+
+.second-font {
+	font-family: var(--second-font);
+}
+.small {
+	font-size: var(--small);
+}
+.smaller {
+	font-size: var(--smaller);
+}
+.larger {
+	font-size: var(--larger);
+}
+.medium {
+	font-weight: var(--weigth-m);
+}
+
+a {
+	text-decoration: underline;
+	text-decoration-thickness: 0.5px;
+	text-underline-offset: 0.2em;
+}
+.crossed-out {
+	text-decoration: line-through;
+}
+.second-font.larger span {
+	font-family: inherit;
+	font-size: inherit;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 0.2em;
+}
+h1 span {
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+}
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+* {
+	margin: 0;
+}
+body {
+	line-height: 1.2;
+	-webkit-font-smoothing: antialiased;
+}
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-width: 100%;
+}
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	overflow-wrap: break-word;
+}
+#root,
+#__next {
+	isolation: isolate;
+}
+
+h1 {
+	font-size: var(--h1);
+}
+h2 {
+	font-size: var(--h2);
+}
+h3 {
+	font-size: var(--h3);
+}
+h4 {
+	font-size: var(--h4);
+}
+h5 {
+	font-size: var(--h5);
+}
+h6 {
+	font-size: var(--h6);
+}
+p {
+	font-size: var(--p);
+}
+
+.content-width-container {
+	width: 100%;
+	max-width: 1000px;
+	padding: var(--space-xs) var(--space-m);
+}
+
+.c-hr {
+	border: 0.5px solid var(--accent);
+	margin: var(--space-s) 0;
+}
+
+.display-none {
+	display: none;
+}
+
+a {
+	font-family: inherit;
+	color: var(--links);
+}
+/*//////////////////////////////////*/
+/*//////// buttons styling /////////*/
+/*//////////////////////////////////*/
+
+button {
+	background: var(--accent);
+	border: none;
+	border-radius: var(--space-x);
+	outline: none;
+	box-shadow: none;
+	cursor: pointer;
+	padding: var(--space-xs) var(--space-m);
+	width: fit-content;
+}
+button:active,
+button:focus {
+	outline: none;
+}
+.btn--white {
+	display: inline-block;
+	color: var(--links);
+	background-color: var(--white);
+	margin-top: var(--space-xs);
+}
+/*//////////////////////////////////*/
+/*///////// header styling /////////*/
+/*//////////////////////////////////*/
+.cars-header {
+	position: relative;
+	width: 100%;
+	max-height: 300px;
+}
+.cars-header__nav-row {
+	width: 100%;
+	height: 80px;
+	background-color: var(--bg4);
+}
+.cars-header__logo {
+	position: absolute;
+	top: 5px;
+	left: 50%;
+	max-height: 100px;
+	transform: scale(70%) translateX(-75%);
+	z-index: 100;
+}
+.cars-header__line {
+	margin: 25px auto;
+	width: 1px;
+	height: 80px;
+	background-color: var(--base);
+}
+/*//////////////////////////////////*/
+/*///////// footer styling /////////*/
+/*//////////////////////////////////*/
+footer {
+	display: flex;
+	flex-direction: column;
+}
+.footer-row {
+	display: flex;
+	margin: auto;
+	align-items: center;
+}
+.cars-footer__line {
+	margin: 25px;
+	width: 1px;
+	height: 80px;
+	background-color: var(--base);
+}
+
+.social-media-list {
+	padding-left: 0;
+	list-style: none;
+	width: 200px;
+	text-align: end;
+}
+.social-media-list li {
+	display: inline-block;
+	margin-left: 10px;
+}
+.copy-text {
+	width: 200px;
+}
+.cars-footer__logo {
+	transform: scale(25%) translateX(-15px);
+}
+.footer-row-bottom {
+	display: flex;
+	margin: auto;
+	align-items: center;
+	height: 40px;
+}
+
+/*//////////////////////////////////*/
+/*//////// sections styling ////////*/
+/*//////////////////////////////////*/
+.cars-sc {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	margin: auto;
+	align-items: center;
+	gap: var(--space-s);
+}
+
+.cars-sc[hidden] {
+	display: none;
+}
+
+/*//////////////////////////////*/
+/*//////// form styling ////////*/
+/*//////////////////////////////*/
+.form-container {
+	display: flex;
+	flex-direction: column;
+	row-gap: var(--space-xs);
+}
+ul {
+	list-style-type: none;
+	padding: 0;
+}
+input {
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	border-bottom: 0.5px solid var(--base);
+}
+input::placeholder {
+	color: var(--pale);
+}
+input:focus {
+	outline: none;
+	border: none;
+	border-bottom: 1px solid var(--accent);
+}
+input[type="radio"]:checked {
+	outline: none;
+	border-color: var(--accent);
+	background-color: var(--accent);
+}
+
+.order-sc {
+	padding: var(--space-m);
+}
+.order-sc li:not(:last-child),
+fieldset div:not(:last-child) {
+	padding-bottom: var(--space-xs);
+}
+fieldset {
+	border: 0;
+	padding: var(--space-s) 0;
+}
+fieldset div {
+	padding-left: var(--space-m);
+}
+
+.chosen-color {
+	position: relative;
+}
+
+.chosen-color::before {
+	content: "";
+	position: absolute;
+	left: -40px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: var(--space-x);
+	height: var(--space-x);
+	background-color: var(--individualcar);
+	border-radius: 50%;
+}
+
+/*///////////////////////////////*/
+/*//////// icons styling ////////*/
+/*///////////////////////////////*/
+.ti {
+	font-family: var(--icons-themify);
+}
+
+.ti-arrow-left:before {
+	content: "\e629";
+}
+.ti-mobile:before {
+	content: "\e621";
+}
+.ti-minus:before {
+	content: "\e622";
+}
+.ti-plus:before {
+	content: "\e61a";
+}
