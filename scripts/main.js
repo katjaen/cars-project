@@ -6,6 +6,9 @@ import {
 	createCarData,
 } from "./carsData.js"
 
+let selectedCar = null
+let container = null
+
 const availableCarsSection = document.getElementById("available-cars-sc")
 const carOrderSection = document.getElementById("car-order-sc")
 const purchaseSummarySection = document.getElementById("purchase-summary")
@@ -29,64 +32,49 @@ let defaultPickupDate = null
 
 availableCarsSection.hidden = false
 
-////////////////////////////////////
-////////  render car cards  ////////
-////////////////////////////////////
+function handleCardButtonClick(car) {
+	selectedCar = car
+	availableCarsSection.hidden = true
+	carOrderSection.hidden = false
+	renderAccessoriesList(selectedCar)
+	// Dodaj tutaj inne funkcje renderujące dane dla wybranego samochodu
+}
+
 function renderCarCards() {
-	// Sprawdź, czy znaleziono kontener i szablony
-	if (!carCardGridContainer || !carCardTemplate || !carCardButtonTemplate) {
-		console.error("Nie znaleziono kontenera lub szablonów")
-		return
-	}
+	const container = carCardGridContainer
+	const cardTemplate = carCardTemplate.content
+	const buttonTemplate = carCardButtonTemplate.content
 
-	// Usuń istniejące karty aut, jeśli istnieją
-	carCardGridContainer.innerHTML = ""
+	// Clear the container of any existing cards
+	container.innerHTML = ""
 
-	// Iteruj przez przetworzone dane o samochodach i renderuj karty
+	// Iterate over the processed car data and render each card
 	processedCarsData.forEach(car => {
-		// Sklonuj szablon karty auta
-		const carCardClone = carCardTemplate.content.cloneNode(true)
+		const card = cardTemplate.cloneNode(true)
+		const button = buttonTemplate.cloneNode(true)
 
-		// Uzupełnij dane na karcie auta
-		carCardClone.querySelector(".brand").textContent = car.brand
-		carCardClone.querySelector(".model").textContent = car.model
-		carCardClone.querySelector(".car-card__image").src = car.images[0]
-		carCardClone.querySelector(".year").textContent = `Year: ${car.year}`
-		carCardClone.querySelector(
+		card.querySelector(".brand").textContent = car.brand
+		card.querySelector(".model").textContent = car.model
+		card.querySelector(".car-card__image").src = car.images[0]
+		card.querySelector(".year").textContent = `Year: ${car.year}`
+		card.querySelector(
 			".engine-power"
 		).textContent = `Engine Power: ${car.enginePower}`
-		carCardClone.querySelector(
-			".mileage"
-		).textContent = `Mileage: ${car.mileage}`
-		carCardClone.querySelector(".price").textContent = `Price: ${car.price}`
-		carCardClone
+		card.querySelector(".mileage").textContent = `Mileage: ${car.mileage}`
+		card.querySelector(".price").textContent = `Price: ${car.price}`
+		card
 			.querySelector(".car-card")
 			.style.setProperty("--car-bg", car.brandColor)
 
-		// Renderuj button na karcie auta
-		const buttonClone = carCardButtonTemplate.content.cloneNode(true)
-		buttonClone.querySelector(".car-card__button").textContent =
-			"Want to have it?"
-		buttonClone
-			.querySelector(".car-card__button")
-			.addEventListener("click", () => {
-				availableCarsSection.hidden = true
-				carOrderSection.hidden = false
-				renderAccessoriesList(car)
+		button.querySelector(".car-card__button").textContent = "Want to have it?"
+		button.querySelector(".car-card__button").addEventListener("click", () => {
+			handleCardButtonClick(car)
+		})
 
-				// Tutaj umieść logikę obsługi kliknięcia przycisku
-				console.log(`Kliknięto przycisk dla samochodu ${car.model} ${car.id}`)
-			})
-		carCardClone
-			.querySelector(".car-card__button-container")
-			.appendChild(buttonClone)
-
-		// Dodaj sklonowaną kartę auta do kontenera
-		carCardGridContainer.appendChild(carCardClone)
+		card.querySelector(".car-card__button-container").appendChild(button)
+		container.appendChild(card)
 	})
 }
-
-// Wywołaj funkcję renderującą karty aut
 renderCarCards()
 
 ////////////////////////////////////
@@ -112,49 +100,47 @@ datePicker.value = defaultPickupDate
 datePicker.min = defaultPickupDate
 
 function renderAccessoriesList(car) {
-	const container = document.getElementById("accessories-list")
-	if (container === null) {
+	const listContainer = document.getElementById("accessories-list")
+	if (!listContainer) {
 		throw new Error("Failed to find accessories list container")
 	}
 
-	const accessoryLiTemplate = document.getElementById("accessory-li-template")
-	if (accessoryLiTemplate === null) {
+	const itemTemplate = document.getElementById("accessory-li-template")
+	if (!itemTemplate) {
 		throw new Error("Failed to find accessory list item template")
 	}
+	// Sprawdzamy, czy selectedCar został ustawiony
+	if (!selectedCar) {
+		return
+	}
 
-	container.innerHTML = "" // Clear current list items
+	// Sprawdzamy, czy car jest wybranym samochodem
+	if (car !== selectedCar) {
+		return
+	}
+	listContainer.innerHTML = ""
 
 	if (
-		car.availableAccessories === null ||
+		!car.availableAccessories ||
 		!Array.isArray(car.availableAccessories) ||
 		car.availableAccessories.length === 0
 	) {
-		console.error("Brak akcesoriów lub nieprawidłowy format danych")
 		return
 	}
 
 	car.availableAccessories.forEach(accessory => {
-		const accessoryLiClone = accessoryLiTemplate.content.cloneNode(true)
-		const nameEl = accessoryLiClone.querySelector(".accessory-name")
-		if (nameEl === null) {
-			throw new Error("Failed to find accessory name element")
-		}
-		nameEl.textContent = accessory.name
+		const itemClone = itemTemplate.content.cloneNode(true)
+		const nameEl = itemClone.querySelector(".accessory-name")
+		const priceEl = itemClone.querySelector(".accessory-price")
 
-		const priceEl = accessoryLiClone.querySelector(".accessory-price")
-		if (priceEl === null) {
-			throw new Error("Failed to find accessory price element")
-		}
+		nameEl.textContent = accessory.name
 		priceEl.textContent = accessory.price
 
-		const addColorSpan = accessoryLiClone.querySelector(".add-color-accessory")
-		if (addColorSpan !== null && accessory.id === "addColor") {
+		const addColorSpan = itemClone.querySelector(".add-color-accessory")
+		if (addColorSpan && accessory.id === "addColor") {
 			addColorSpan.hidden = false
 		}
 
-		container.appendChild(accessoryLiClone)
+		listContainer.appendChild(itemClone)
 	})
 }
-
-// Ustaw domyślną wartość koloru inputa na wartość zmiennej CSS
-// document.getElementById("color-picker").value = "--individualcar"
