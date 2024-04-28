@@ -31,19 +31,18 @@
 	bottom: 0;
 	max-height: 80%;
 }
-.car-card img {
-	max-height: 80%;
-}
 .car-card h2,
 .car-card p,
+.car-card li,
 .car-card--chosen h2,
-.car-card--chosen p {
+.car-card--chosen p,
+.car-card--chosen li {
 	padding: 2px var(--space-xs);
 	letter-spacing: 1px;
 }
 .car-card--chosen h2,
 .car-card--chosen p {
-	margin-left: var(--space-l);
+	margin-inline-start: var(--space-l);
 }
 .car-card h2,
 .car-card--chosen h2 {
@@ -60,12 +59,8 @@
 	.text-content-width {
 		width: 600px;
 	}
-	.cars-container--grid {
-		width: 100%;
-		max-width: 1000px;
-	}
 	.car-card:nth-child(1) {
-		font-size: 1.8em;
+		font-size: 1.4em;
 		grid-column: span 7;
 		grid-row: span 2;
 		background-image: linear-gradient(
@@ -76,7 +71,7 @@
 	}
 	.car-card:nth-child(1) h2,
 	.car-card:nth-child(1) p {
-		margin-left: var(--space-l);
+		margin-inline-start: var(--space-l);
 	}
 
 	.car-card:nth-child(2) {
@@ -110,7 +105,7 @@
 	}
 	.car-card:nth-child(n + 4):nth-child(2n) h2,
 	.car-card:nth-child(n + 4):nth-child(2n) p {
-		margin-left: var(--space-l);
+		margin-inline-start: var(--space-l);
 	}
 
 	.car-card:nth-child(n + 4):nth-child(2n + 1) {
@@ -222,8 +217,8 @@
 	color: var(--base);
 	padding: var(--space-xs);
 }
-.car-card__details-container p::before,
-.car-card__details-container p::after {
+/* .car-card__details-container li::before, */
+.car-card__details-container li::after {
 	font-size: var(--small);
 	font-weight: 500;
 }

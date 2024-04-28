@@ -43,6 +43,7 @@ function handleCardButtonClick(car) {
 	availableCarsSection.hidden = true
 	carOrderSection.hidden = false
 	renderCarCardChosen(selectedCar)
+	styleChosenCard(selectedCar)
 	renderAccessoriesList(selectedCar)
 	// Dodaj tutaj inne funkcje renderujące dane dla wybranego samochodu
 }
@@ -61,6 +62,11 @@ function createButton(car) {
 	return button
 }
 
+/**
+ * Renders car cards into the specified container element.
+ *
+ * @return {void} This function does not return anything.
+ */
 function renderCarCards() {
 	const container = carCardGridContainer
 	const cardTemplate = carCardTemplate.content
@@ -93,7 +99,6 @@ renderCarCards()
 
 function renderCarCardChosen() {
 	if (!selectedCar) {
-		console.warn("No car selected")
 		return
 	}
 	const container = carCardChosenContainer
@@ -118,9 +123,25 @@ function renderCarCardChosen() {
 
 	const button = createButton(selectedCar)
 	card.querySelector(".car-card__button-container").appendChild(button)
+
 	container.appendChild(card)
 }
 renderCarCardChosen()
+
+function styleChosenCard() {
+	const chosenCard = carCardChosenContainer.querySelector(".car-card")
+	const chosenCardDetails = carCardChosenContainer.querySelector(
+		".car-card__details-container"
+	)
+	if (chosenCard) {
+		chosenCard.classList.remove("car-card")
+		chosenCard.classList.add("car-card--chosen")
+		chosenCardDetails.classList.remove("car-card__details-container")
+		chosenCardDetails.classList.add("car-card-chosen__details-container")
+	}
+}
+
+styleChosenCard()
 
 ////////////////////////////////////
 /////  render chosen car card  /////
