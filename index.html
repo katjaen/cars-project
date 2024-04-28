@@ -30,6 +30,7 @@
                 <div id="car-card__details-container" class="car-card__details-container">
                     <ul id="car-card__details-container__list" class="car-card__details-container__list">
                         <li id="brand-model" class="brand-model"></li>
+                        <span></span></li>
                         <li id="year" class="year"></li>
                         <li id="engine-power" class="engine-power"></li>
                         <li id="mileage" class="mileage"></li>
@@ -42,16 +43,16 @@
             </div>
         </template>
 
-        <template id="car-card-chosen__button-template" class="car-card-chosen__button-template">
-            <button id="phone-btn" class="car-card__button phone-btn btn--white" aria-label="Click here to call us">
-                <span id="ti-mobile" class="ti ti-mobile"></span>
-            </button>
-        </template>
-
         <template id="car-card__button-template" class="car-card__button-template">
             <button class="car-card__button btn--white" aria-label="Want to have it?">Want to have it?</button>
         </template>
 
+        <template id="car-card-chosen__button-template" class="car-card-chosen__button-template">
+            <button id="phone-btn" class="car-card__button phone-btn btn--white"
+                aria-label="Click here to call us"><span class="ti ti-mobile">
+                </span><a href="tel:+48000000000">Call for more info</a>
+            </button>
+        </template>
 
         <template id="accessory-li-template"><!-- Szablon dla elementu li z akcesorium o klasie "addColor" -->
             <li class="accessory-item">
@@ -66,7 +67,6 @@
 
         <section id="available-cars-sc" class="cars-sc" hidden>
             <div id="cars-container-grid" class="cars-container--grid content-width-container" aria-live="polite">
-
                 <!-- car cards rendered from car-card-template; button is to be car-card__button-template inside class="car-card__button-container"; --car-bg depends on the brand of the car -->
             </div>
         </section>

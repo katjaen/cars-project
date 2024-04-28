@@ -54,6 +54,9 @@
 	--larger: 2em;
 	--weigth-m: 500;
 
+	/* currency variables */
+	--currency-symbol: "€";
+
 	text-underline-offset: 0.3em;
 }
 

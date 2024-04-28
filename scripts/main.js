@@ -7,7 +7,6 @@ import {
 } from "./carsData.js"
 
 let selectedCar = null
-let container = null
 
 const availableCarsSection = document.getElementById("available-cars-sc")
 const carOrderSection = document.getElementById("car-order-sc")
@@ -19,15 +18,22 @@ const carCardButtonTemplate = document.getElementById(
 )
 const carCardGridContainer = document.getElementById("cars-container-grid")
 
-const carCardChosenTemplate = document.getElementById(
-	"car-card-chosen-template"
-)
+// const carCardChosenTemplate = document.getElementById(
+// 	"car-card-chosen-template"
+// )
 const carCardChosenButtonTemplate = document.getElementById(
 	"car-card-chosen__button-template"
 )
 const carCardChosenContainer = document.getElementById(
 	"car-card-chosen-container"
 )
+
+const accessoriesListContainer = document.getElementById("accessories-list")
+const orderListContainer = document.getElementById("order-summary-list")
+const carOrderForm = document.getElementById("car-order-form")
+const carOrderFormContainer = document.getElementById("form-container")
+const formConfirmBtn = document.getElementById("form-confirm-btn")
+
 let defaultPickupDate = null
 
 availableCarsSection.hidden = false
@@ -36,14 +42,28 @@ function handleCardButtonClick(car) {
 	selectedCar = car
 	availableCarsSection.hidden = true
 	carOrderSection.hidden = false
+	renderCarCardChosen(selectedCar)
 	renderAccessoriesList(selectedCar)
 	// Dodaj tutaj inne funkcje renderujące dane dla wybranego samochodu
+}
+
+function createButton(car) {
+	let buttonTemplate
+	if (selectedCar) {
+		buttonTemplate = carCardChosenButtonTemplate.content.cloneNode(true)
+	} else {
+		buttonTemplate = carCardButtonTemplate.content.cloneNode(true)
+	}
+	const button = buttonTemplate.querySelector(".car-card__button")
+	button.addEventListener("click", () => {
+		handleCardButtonClick(car)
+	})
+	return button
 }
 
 function renderCarCards() {
 	const container = carCardGridContainer
 	const cardTemplate = carCardTemplate.content
-	const buttonTemplate = carCardButtonTemplate.content
 
 	// Clear the container of any existing cards
 	container.innerHTML = ""
@@ -51,31 +71,56 @@ function renderCarCards() {
 	// Iterate over the processed car data and render each card
 	processedCarsData.forEach(car => {
 		const card = cardTemplate.cloneNode(true)
-		const button = buttonTemplate.cloneNode(true)
 
+		card.querySelector(".brand-model").textContent = `${car.brand} ${car.model}`
 		card.querySelector(".brand").textContent = car.brand
 		card.querySelector(".model").textContent = car.model
 		card.querySelector(".car-card__image").src = car.images[0]
-		card.querySelector(".year").textContent = `Year: ${car.year}`
-		card.querySelector(
-			".engine-power"
-		).textContent = `Engine Power: ${car.enginePower}`
-		card.querySelector(".mileage").textContent = `Mileage: ${car.mileage}`
-		card.querySelector(".price").textContent = `Price: ${car.price}`
+		card.querySelector(".year").textContent = car.year
+		card.querySelector(".engine-power").textContent = car.enginePower
+		card.querySelector(".mileage").textContent = car.mileage
+		card.querySelector(".price").textContent = car.price
 		card
 			.querySelector(".car-card")
 			.style.setProperty("--car-bg", car.brandColor)
 
-		button.querySelector(".car-card__button").textContent = "Want to have it?"
-		button.querySelector(".car-card__button").addEventListener("click", () => {
-			handleCardButtonClick(car)
-		})
-
+		const button = createButton(car)
 		card.querySelector(".car-card__button-container").appendChild(button)
 		container.appendChild(card)
 	})
 }
 renderCarCards()
+
+function renderCarCardChosen() {
+	if (!selectedCar) {
+		console.warn("No car selected")
+		return
+	}
+	const container = carCardChosenContainer
+	const cardTemplate = carCardTemplate.content
+
+	// Clear the container of any existing cards
+	container.innerHTML = ""
+
+	// Iterate over the processed car data and render each card
+	const card = cardTemplate.cloneNode(true)
+
+	card.querySelector(".brand").textContent = selectedCar.brand
+	card.querySelector(".model").textContent = selectedCar.model
+	card.querySelector(".car-card__image").src = selectedCar.images[0]
+	card.querySelector(".year").textContent = selectedCar.year
+	card.querySelector(".engine-power").textContent = selectedCar.enginePower
+	card.querySelector(".mileage").textContent = selectedCar.mileage
+	card.querySelector(".price").textContent = selectedCar.price
+	card
+		.querySelector(".car-card")
+		.style.setProperty("--car-bg", selectedCar.brandColor)
+
+	const button = createButton(selectedCar)
+	card.querySelector(".car-card__button-container").appendChild(button)
+	container.appendChild(card)
+}
+renderCarCardChosen()
 
 ////////////////////////////////////
 /////  render chosen car card  /////
@@ -100,8 +145,7 @@ datePicker.value = defaultPickupDate
 datePicker.min = defaultPickupDate
 
 function renderAccessoriesList(car) {
-	const listContainer = document.getElementById("accessories-list")
-	if (!listContainer) {
+	if (!accessoriesListContainer) {
 		throw new Error("Failed to find accessories list container")
 	}
 
@@ -118,7 +162,7 @@ function renderAccessoriesList(car) {
 	if (car !== selectedCar) {
 		return
 	}
-	listContainer.innerHTML = ""
+	accessoriesListContainer.innerHTML = ""
 
 	if (
 		!car.availableAccessories ||
@@ -141,6 +185,6 @@ function renderAccessoriesList(car) {
 			addColorSpan.hidden = false
 		}
 
-		listContainer.appendChild(itemClone)
+		accessoriesListContainer.appendChild(itemClone)
 	})
 }

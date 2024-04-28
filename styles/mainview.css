@@ -237,11 +237,18 @@
 .engine-power::after {
 	content: " HP";
 }
+.engine-power::before {
+	content: "Engine Power: ";
+}
 .mileage::after {
 	content: " miles";
 }
+.mileage::before {
+	content: "Mileage: ";
+}
+.total-price,
 .price::after {
-	content: " €";
+	content: var(--currency-symbol);
 }
 .total-price {
 	margin-top: var(--space-s);
