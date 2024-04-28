@@ -55,10 +55,12 @@
 
         <template id="accessory-li-template"><!-- Szablon dla elementu li z akcesorium o klasie "addColor" -->
             <li class="accessory-item">
-                <span class="accessory-name">Accessory Name</span><span class="add-color-accessory"> | Choose your
-                    color: <input id="individual-car-color" type="color"> |
-                    <!-- this span with color input is rendered only if accesory has id="addColor"--> </span><span
-                    class="accessory-price">Accessory Price</span> <button class="toggle-button">+</button>
+                <span class="accessory-name">Accessory Name</span> |
+                <span class="add-color-accessory" hidden><label for="color-picker"> pick your
+                        choice: </label><input id="color-picker" type="color" value="#fec7c7"> |
+                    <!-- this span rendered only if accesory id="addColor"--> </span> +
+                <span class="accessory-price price medium">Accessory Price</span> <button
+                    class="toggle-button">+</button>
             </li>
         </template>
 
@@ -70,11 +72,6 @@
         </section>
 
         <section id="car-order-sc" class="cars-sc" hidden>
-            <div class="back-home-btn">
-                <button id="back-home-btn" class="btn--white" aria-label="Go home and think it all again">
-                    <span id="ti-arrow-left" class="ti ti-arrow-left"></span> Go home and think it all
-                </button>
-            </div>
             <div id="car-card-chosen-container" class="car-card-chosen-container">
                 <!-- car-card with chosen car rendered from car-card-template - but 1. class="car-card" is to be replaced with "car-card--chosen" 2. car-card__details-container" is to be replaced with "car-card-chosen__details-container" 3. button is to be car-card-chosen__button-template inside <div class="car-card__button-container">-->
             </div>
@@ -84,6 +81,11 @@
                 <p class="second-font larger">and go on holiday in your new <span
                         id="chosen-brand-name"><!-- chosen ${brandName} --></span>!
                 </p>
+            </div>
+            <div class="back-home-btn">
+                <button id="back-home-btn" class="btn--white" aria-label="Or go home and think it all again">
+                    <span id="ti-arrow-left" class="ti ti-arrow-left"></span> Or go home and think it all
+                </button>
             </div>
 
             <div class="form-container"><!-- form rendered from <template id="car-order-form-template"> --></div>
@@ -126,7 +128,7 @@
                         <ul>
                             <li>
                                 <input id="cash-payment" type="radio" name="paymentMethod" value="cash">
-                                <label for="cash-payment" aria-label="Select cash as the payment method">Cash<>
+                                <label for="cash-payment" aria-label="Select cash as the payment method">Cash
                             </li>
                             <li>
                                 <input id="leasing-payment" type="radio" name="paymentMethod" value="leasing">

@@ -25,23 +25,9 @@ const carCardChosenButtonTemplate = document.getElementById(
 const carCardChosenContainer = document.getElementById(
 	"car-card-chosen-container"
 )
+let defaultPickupDate = null
 
-////////////////////////////////////
-///////  show/hide sections  ///////
-////////////////////////////////////
-const showSection = section => {
-	if (section) {
-		section.hidden = false
-	}
-}
-
-const hideSection = section => {
-	if (section) {
-		section.hidden = true
-	}
-}
-
-showSection(availableCarsSection)
+availableCarsSection.hidden = false
 
 ////////////////////////////////////
 ////////  render car cards  ////////
@@ -84,8 +70,10 @@ function renderCarCards() {
 		buttonClone
 			.querySelector(".car-card__button")
 			.addEventListener("click", () => {
-				showSection(carOrderSection)
-				hideSection(availableCarsSection)
+				availableCarsSection.hidden = true
+				carOrderSection.hidden = false
+				renderAccessoriesList(car)
+
 				// Tutaj umieść logikę obsługi kliknięcia przycisku
 				console.log(`Kliknięto przycisk dla samochodu ${car.model} ${car.id}`)
 			})
@@ -104,3 +92,69 @@ renderCarCards()
 ////////////////////////////////////
 /////  render chosen car card  /////
 ////////////////////////////////////
+
+////////////////////////////////////
+////////  back home button  ////////
+////////////////////////////////////
+
+////////////////////////////////////
+//////////  form section //////////
+////////////////////////////////////
+
+// Ustawienie domyślnej daty odbioru zamówienia na 14 dni od dnia dzisiejszego
+
+const currentDate = new Date()
+const datePicker = document.getElementById("pickupdate")
+
+currentDate.setDate(currentDate.getDate() + 14)
+defaultPickupDate = currentDate.toISOString().split("T")[0]
+datePicker.value = defaultPickupDate
+datePicker.min = defaultPickupDate
+
+function renderAccessoriesList(car) {
+	const container = document.getElementById("accessories-list")
+	if (container === null) {
+		throw new Error("Failed to find accessories list container")
+	}
+
+	const accessoryLiTemplate = document.getElementById("accessory-li-template")
+	if (accessoryLiTemplate === null) {
+		throw new Error("Failed to find accessory list item template")
+	}
+
+	container.innerHTML = "" // Clear current list items
+
+	if (
+		car.availableAccessories === null ||
+		!Array.isArray(car.availableAccessories) ||
+		car.availableAccessories.length === 0
+	) {
+		console.error("Brak akcesoriów lub nieprawidłowy format danych")
+		return
+	}
+
+	car.availableAccessories.forEach(accessory => {
+		const accessoryLiClone = accessoryLiTemplate.content.cloneNode(true)
+		const nameEl = accessoryLiClone.querySelector(".accessory-name")
+		if (nameEl === null) {
+			throw new Error("Failed to find accessory name element")
+		}
+		nameEl.textContent = accessory.name
+
+		const priceEl = accessoryLiClone.querySelector(".accessory-price")
+		if (priceEl === null) {
+			throw new Error("Failed to find accessory price element")
+		}
+		priceEl.textContent = accessory.price
+
+		const addColorSpan = accessoryLiClone.querySelector(".add-color-accessory")
+		if (addColorSpan !== null && accessory.id === "addColor") {
+			addColorSpan.hidden = false
+		}
+
+		container.appendChild(accessoryLiClone)
+	})
+}
+
+// Ustaw domyślną wartość koloru inputa na wartość zmiennej CSS
+// document.getElementById("color-picker").value = "--individualcar"

@@ -329,6 +329,10 @@ fieldset div {
 	padding-left: var(--space-m);
 }
 
+input[type="color"] {
+	value: var(--individualcar);
+}
+
 .chosen-color {
 	position: relative;
 }
