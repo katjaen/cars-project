@@ -61,7 +61,7 @@
                         choice: </label><input id="color-picker" type="color" value="#fec7c7"> |
                     <!-- this span rendered only if accesory id="addColor"--> </span> +
                 <span class="accessory-price price medium">Accessory Price</span> <button
-                    class="toggle-button">+</button>
+                    class="toggle-button add-accessory">+</button>
             </li>
         </template>
 
@@ -103,13 +103,16 @@
                 <fieldset>
                     <legend id="medium" class="medium">Order details:</legend>
                     <div class="form-row">
-                        <label id="pickupplace-label" for="pickupplace">Car pickup location:</label>
-                        <input id="pickupplace" type="text" placeholder="e.g. CarLand" required
+                        <label id="pickupplace-label" for="pickupplace-input">Car pickup location:</label>
+                        <input id="pickupplace-input" type="text" placeholder="e.g. CarLand" required
                             aria-label="Enter the car pickup location">
+                        <datalist id="pickup-places">
+                            <!-- Dynamicznie wypełniona lista miejsc -->
+                        </datalist>
                     </div>
                     <div class="form-row">
-                        <label id="pickupdate-label" for="pickupdate">Car pickup date:</label>
-                        <input id="pickupdate" type="date" required min=""
+                        <label id="pickupdate-label" for="pickupdate-input">Car pickup date:</label>
+                        <input id="pickupdate-input" type="date" required min=""
                             aria-label="Select a date (minimum 14 days from today)"><!-- set the minimum acceptance date to 14 days from the current date and put the minimum date as a placeholder in the input field  -->
                     </div>
                 </fieldset>
@@ -127,13 +130,13 @@
                     <div class="form-row">
                         <ul>
                             <li>
-                                <input id="cash-payment" type="radio" name="paymentMethod" value="cash">
-                                <label for="cash-payment" aria-label="Select cash as the payment method">Cash
+                                <label for="cash-payment-input" aria-label="Select cash as the payment method">Cash
+                                    <input id="cash-payment-input" type="radio" name="paymentMethod" value="cash">
                             </li>
                             <li>
-                                <input id="leasing-payment" type="radio" name="paymentMethod" value="leasing">
-                                <label for="leasing-payment"
+                                <label for="leasing-payment-input"
                                     aria-label="Select leasing as the payment method">Leasing</label>
+                                <input id="leasing-payment-input" type="radio" name="paymentMethod" value="leasing">
                             </li>
                         </ul>
                     </div>

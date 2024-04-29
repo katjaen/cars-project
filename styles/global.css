@@ -17,6 +17,8 @@
 	--black: #000000;
 	--pale: #dad5d5;
 	--individualcar: #fec7c7;
+	--valid: #6c9d6c;
+	--invalid: #e66d6d;
 
 	--transparent: #ffffff00;
 
@@ -104,7 +106,7 @@ h1 span {
 	margin: 0;
 }
 body {
-	line-height: 1.2;
+	line-height: 1.4;
 	-webkit-font-smoothing: antialiased;
 }
 img,
@@ -163,6 +165,9 @@ p {
 	padding: var(--space-xs) var(--space-m);
 }
 
+.text-content-width {
+	max-width: 600px;
+}
 .c-hr {
 	border: 0.5px solid var(--accent);
 	margin: var(--space-s) 0;
@@ -199,6 +204,9 @@ button:focus {
 	color: var(--links);
 	background-color: var(--white);
 	margin-top: var(--space-xs);
+}
+.car-card__button {
+	margin-top: var(--space-s);
 }
 /*//////////////////////////////////*/
 /*///////// header styling /////////*/
@@ -315,6 +323,26 @@ input[type="radio"]:checked {
 	outline: none;
 	border-color: var(--accent);
 	background-color: var(--accent);
+}
+.valid {
+	border-bottom: 1px solid var(--valid);
+}
+.invalid {
+	color: var(--invalid);
+}
+#fullname.invalid::after {
+	content: "Full name is required";
+	color: var(--invalid);
+}
+/* Check for null pointer references */
+#fullname.invalid + *:not(:last-child)::after {
+	content: " (null pointer reference)";
+	color: var(--invalid);
+}
+/* Check for unhandled exceptions */
+#fullname.invalid ~ details[open] summary::after {
+	content: " (unhandled exception)";
+	color: var(--invalid);
 }
 
 .order-sc {

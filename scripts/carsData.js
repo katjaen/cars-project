@@ -1,3 +1,9 @@
+export const pickupPlaces = [
+	{ name: "Carlandia", id: "carlandia" },
+	{ name: "Carnoland", id: "carnoland" },
+	{ name: "Heaven", id: "heaven" },
+	{ name: "Hell", id: "hell" },
+]
 export const sharedAccesories = [
 	{ name: "Individual Color", price: 8000, id: "addColor" },
 	{ name: "Jet button", price: 500, id: "jetBtn" },

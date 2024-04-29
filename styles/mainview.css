@@ -6,12 +6,13 @@
 	grid-template-columns: repeat(10, 1fr);
 	grid-auto-rows: auto;
 	gap: var(--grid-gap);
+	padding-bottom: var(--space-s);
 }
 
 .car-card {
 	position: relative;
 	min-height: 250px;
-	padding-top: var(--space-xs);
+	padding: var(--space-xs);
 }
 .car-card--chosen {
 	position: relative;
@@ -25,41 +26,29 @@
 		transparent calc(100% - var(--space-l))
 	);
 }
-.car-card img,
-.car-card--chosen img {
+.car-card img {
 	position: absolute;
 	bottom: 0;
 	max-height: 80%;
 }
-.car-card h2,
-.car-card p,
-.car-card li,
-.car-card--chosen h2,
-.car-card--chosen p,
-.car-card--chosen li {
-	padding: 2px var(--space-xs);
+.car-card {
+	/* padding: var(--space-xs); */
 	letter-spacing: 1px;
 }
 .car-card--chosen h2,
 .car-card--chosen p {
-	margin-inline-start: var(--space-l);
+	margin-inline-start: var(--space-xl);
 }
-.car-card h2,
-.car-card--chosen h2 {
-	font-size: 1.6em;
+.car-card h2 {
+	font-size: 1.8em;
 	line-height: 1;
 	font-weight: 400;
 	text-transform: uppercase;
-}
-.car-card h2 {
 	max-width: 14ch;
 }
 
 @media (min-width: 1000px) {
-	.text-content-width {
-		width: 600px;
-	}
-	.car-card:nth-child(1) {
+	.car-card--main-grid:nth-child(1) {
 		font-size: 1.4em;
 		grid-column: span 7;
 		grid-row: span 2;
@@ -69,12 +58,12 @@
 			transparent calc(100% - var(--space-l))
 		);
 	}
-	.car-card:nth-child(1) h2,
-	.car-card:nth-child(1) p {
+	.car-card--main-grid:nth-child(1) h2,
+	.car-card--main-grid:nth-child(1) p {
 		margin-inline-start: var(--space-l);
 	}
 
-	.car-card:nth-child(2) {
+	.car-card--main-grid:nth-child(2) {
 		grid-column: span 3;
 		grid-row: span 1;
 		background-image: linear-gradient(
@@ -84,7 +73,7 @@
 		);
 	}
 
-	.car-card:nth-child(3) {
+	.car-card--main-grid:nth-child(3) {
 		grid-column: span 3;
 		grid-row: span 1;
 		background-image: linear-gradient(
@@ -94,7 +83,7 @@
 		);
 	}
 
-	.car-card:nth-child(n + 4):nth-child(2n) {
+	.car-card--main-grid:nth-child(n + 4):nth-child(2n) {
 		grid-column: span 5;
 		grid-row: span 1;
 		background-image: linear-gradient(
@@ -103,12 +92,12 @@
 			transparent calc(100% - var(--space-l))
 		);
 	}
-	.car-card:nth-child(n + 4):nth-child(2n) h2,
-	.car-card:nth-child(n + 4):nth-child(2n) p {
+	.car-card--main-grid:nth-child(n + 4):nth-child(2n) h2,
+	.car-card--main-grid:nth-child(n + 4):nth-child(2n) p {
 		margin-inline-start: var(--space-l);
 	}
 
-	.car-card:nth-child(n + 4):nth-child(2n + 1) {
+	.car-card--main-grid:nth-child(n + 4):nth-child(2n + 1) {
 		grid-column: span 5;
 		grid-row: span 1;
 		background-image: linear-gradient(
@@ -124,11 +113,11 @@
 	.car-card-chosen-container {
 		width: 100%;
 	}
-	.car-card {
+	.car-card--main-grid {
 		grid-column: span 5;
 		grid-row: span 1;
 	}
-	.car-card:nth-child(1) {
+	.car-card--main-grid:nth-child(1) {
 		min-height: clamp(22rem, 35.294vw + 14.941rem, 37rem);
 		font-size: 1.8em;
 		grid-column: span 10;
@@ -140,32 +129,32 @@
 		);
 		margin-right: var(--space-l);
 	}
-	.car-card:nth-child(2n) {
+	.car-card--main-grid:nth-child(2n) {
 		background-image: linear-gradient(
 			to left,
 			var(--car-bg) calc(100% - var(--space-l)),
 			transparent calc(100% - var(--space-l))
 		);
 	}
-	.car-card:nth-child(2n + 3) {
+	.car-card--main-grid:nth-child(2n + 3) {
 		background-image: linear-gradient(
 			to right,
 			var(--car-bg) calc(100% - var(--space-l)),
 			transparent calc(100% - var(--space-l))
 		);
 	}
-	.car-card:nth-child(1) h2,
-	.car-card:nth-child(1) p,
-	.car-card:nth-child(2n) h2,
-	.car-card:nth-child(2n) p {
+	.car-card--main-grid:nth-child(1) h2,
+	.car-card--main-grid:nth-child(1) p,
+	.car-card--main-grid:nth-child(2n) h2,
+	.car-card--main-grid:nth-child(2n) p {
 		margin-left: var(--space-l);
 	}
 }
 @media (max-width: 450px) {
-	.car-card:nth-child(1) {
+	.car-card--main-grid:nth-child(1) {
 		font-size: 1em;
 	}
-	.car-card h2 {
+	.car-card--main-grid h2 {
 		font-size: 1em;
 	}
 	.footer-row {
@@ -188,7 +177,6 @@
 	position: absolute;
 	right: 0;
 	bottom: 0;
-	left: 0;
 	background-color: var(--accent);
 	min-width: fit-content;
 	width: 100%;
@@ -198,29 +186,24 @@
 	opacity: 0;
 	transition: opacity 0.3s ease;
 }
-.car-card-chosen__details-container {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	background-color: var(--accent);
-	min-width: fit-content;
-	width: 50%;
-	height: 100%;
-	padding: var(--space-s);
-	align-content: center;
-}
-
 .car-card__details-container:hover {
 	opacity: 1;
 }
-.car-card__details-container p {
-	color: var(--base);
-	padding: var(--space-xs);
+.car-card-chosen__details-container {
+	width: 50%;
+	opacity: 1;
 }
-/* .car-card__details-container li::before, */
+.car-card__details-container li {
+	padding-left: var(--space-m);
+	letter-spacing: 0;
+}
 .car-card__details-container li::after {
 	font-size: var(--small);
 	font-weight: 500;
+}
+.car-card__details-container li:nth-child(1) {
+	margin-bottom: var(--space-s);
+	padding-left: var(--space-xs);
 }
 .brand-model {
 	text-decoration: underline;
