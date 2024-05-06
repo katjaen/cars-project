@@ -22,7 +22,6 @@ function initApp() {
 ////////////////////////////////////////////////
 const backHomeButton = document.getElementById("back-home-btn")
 backHomeButton.addEventListener("click", resetOrderAndSummary)
-
 function resetOrderAndSummary() {
 	document.querySelectorAll(".car-card").forEach(card => {
 		card.removeAttribute("hidden")
