@@ -1,13 +1,12 @@
 export const pickupPlaces = [
-	{ name: "Carlandia", id: "carlandia" },
-	{ name: "Carnoland", id: "carnoland" },
+	{ name: "Carland", id: "carland" },
 	{ name: "Heaven", id: "heaven" },
 	{ name: "Hell", id: "hell" },
 ]
 export const sharedAccesories = [
-	{ name: "Individual Color", price: 8000, id: "addColor" },
-	{ name: "Jet button", price: 500, id: "jetBtn" },
-	{ name: "Autodestruction button", price: 1000, id: "destrBtn" },
+	{ name: "Individual Color", id: "addColor", inputColor: "", price: 8000 },
+	{ name: "Jet button", id: "jetBtn", price: 500 },
+	{ name: "Autodestruction button", id: "destrBtn", price: 1000 },
 ]
 
 export const brandColors = {
@@ -60,7 +59,7 @@ export const cars = [
 		mileage: "80,000",
 		price: 55000,
 		images: [
-			"./assets/Chevrolet Camaro Z28/Chevrolet Camaro Z28.png",
+			"./assets/Chevrolet Camaro Z28/10304_alt4.webp",
 			"./assets/Chevrolet Camaro Z28/10304_alt8.webp",
 			"./assets/Chevrolet Camaro Z28/10304_alt4.webp",
 			"./assets/Chevrolet Camaro Z28/10304_alt5.webp",
@@ -92,7 +91,7 @@ export const cars = [
 		mileage: "15,000",
 		price: 85000,
 		images: [
-			"./assets/Corvette/Corvette.png",
+			"./assets/Corvette/10321_alt6.webp",
 			"./assets/Corvette/10321_alt2.webp",
 			"./assets/Corvette/10321_alt3.webp",
 			"./assets/Corvette/10321_alt5.webp",
@@ -115,8 +114,11 @@ export function createCarData(car) {
 		accessoriesByModel,
 		images,
 	} = car
+
 	const brandColor = brandColors[brand] || "defaultColor" // Dodaj domyślny kolor, jeśli marka nie ma przypisanego koloru
-	const availableAccessories = [...sharedAccesories, ...accessoriesByModel]
+	const availableAccessories = Array.isArray(accessoriesByModel)
+		? [...sharedAccesories, ...accessoriesByModel]
+		: []
 
 	return {
 		id,

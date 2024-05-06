@@ -1,421 +1,665 @@
-import {
-	cleanId,
-	processedCarsData,
-	pickupPlaces,
-	brandColors,
-	cars,
-	createCarData,
-} from "./carsData.js"
-
-let selectedCar = null
+import { cleanId, processedCarsData, pickupPlaces } from "./carsData.js"
 
 const availableCarsSection = document.getElementById("available-cars-sc")
 const carOrderSection = document.getElementById("car-order-sc")
-const purchaseSummarySection = document.getElementById("purchase-summary")
+const purchaseSummarySection = document.getElementById("purchase-summary-sc")
 
+const CardsContainer = document.getElementById("cars-container-grid")
 const carCardTemplate = document.getElementById("car-card-template")
-const carCardButtonTemplate = document.getElementById(
-	"car-card__button-template"
-)
-const carCardGridContainer = document.getElementById("cars-container-grid")
 
-// const carCardChosenTemplate = document.getElementById(
-// 	"car-card-chosen-template"
-// )
-const carCardChosenButtonTemplate = document.getElementById(
-	"car-card-chosen__button-template"
-)
-const carCardChosenContainer = document.getElementById(
-	"car-card-chosen-container"
-)
+const backHomeButton = document.getElementById("back-home-btn")
+
+const fullName = document.getElementById("full-name")
+const pickupDate = document.getElementById("pickup-date")
+const pickupPlace = document.getElementById("pickup-place")
 
 const accessoriesListContainer = document.getElementById("accessories-list")
-const orderListContainer = document.getElementById("order-summary-list")
-const carOrderForm = document.getElementById("car-order-form")
-const carOrderFormContainer = document.getElementById("form-container")
+const accessoryTemplate = document.getElementById("accessory-li-template")
+const accessoriesList = document.getElementById("accessories-list")
+const accessoriesButton = document.getElementById("accessories-btn")
+
+const orderSummaryList = document.getElementById("chosen-accessories-list")
+
 const formConfirmButton = document.getElementById("form-confirm-btn")
 
-const backButton = document.getElementById("back-home-btn")
-
-const nameInputElement = document.getElementById("fullname")
-const pickupPlaceInput = document.getElementById("pickupplace-input")
-const pickupPlacesList = document.getElementById("pickup-places")
-const pickupDateInput = document.getElementById("pickupdate-input")
-
-availableCarsSection.hidden = false
-
-function handleCarCardButtonClick(car) {
-	try {
-		if (!car) {
-			throw new Error("Failed to find car in handleCarCardButtonClick")
-		}
-		selectedCar = car
-		availableCarsSection.hidden = true
-		carOrderSection.hidden = false
-		renderCarCardChosen(selectedCar)
-		// styleChosenCarCard(selectedCar)
-		fillSelectedCarOrderHeaderData(selectedCar)
-		renderAccessoriesList(selectedCar)
-	} catch (error) {
-		console.error(error)
-	}
+function initApp() {
+	const container = CardsContainer
+	if (!container)
+		throw new ReferenceError("Could not find #cars-container-grid")
+	renderCarCardsAll(container)
 }
 
-function createCarCardButton(car) {
-	let buttonTemplate
+///////////////////////////////////////////////
+/////////////  cars details render ////////////
+///////////////////////////////////////////////
+function renderCarDetails(
+	car,
+	brandModelElement,
+	brandElement,
+	modelElement,
+	imageElement,
+	yearElement,
+	enginePowerElement,
+	mileageElement,
+	priceElement
+) {
+	if (
+		!car ||
+		!brandModelElement ||
+		!brandElement ||
+		!modelElement ||
+		!imageElement ||
+		!yearElement ||
+		!enginePowerElement ||
+		!mileageElement ||
+		!priceElement
+	) {
+		throw new ReferenceError("Missing car data or elements")
+	}
+
+	brandModelElement.textContent = `${car.brand} ${car.model}`
+	brandElement.textContent = car.brand
+	modelElement.textContent = car.model
+	imageElement.src = car.images[0]
+	imageElement.alt = `${car.brand} ${car.model} ${car.year}`
+	yearElement.textContent = car.year
+	enginePowerElement.textContent = car.enginePower
+	mileageElement.textContent = car.mileage
+	priceElement.textContent = car.price
+}
+
+function renderAccessoryDetails(accessory, nameElement, priceElement) {
+	if (!accessory || !nameElement || !priceElement) {
+		throw new ReferenceError("Missing accessory data or elements")
+	}
+	nameElement.textContent = accessory.name
+	priceElement.textContent = accessory.price
+}
+
+///////////////////////////////////////////////
+/////////////// render car card //////////////
+///////////////////////////////////////////////
+function renderCarCard(card, car) {
+	const cleanedId = cleanId(`${car.model}-${car.id}`)
+
+	const carCard = card.querySelector(".car-card")
+	carCard.id = cleanedId
+	carCard.setAttribute("data-car-id", car.id)
+	carCard.setAttribute("data-brand", car.brand)
+	carCard.setAttribute("data-model", car.model)
+	carCard.setAttribute("data-year", car.year)
+	carCard.setAttribute("data-price", car.price)
+	carCard.style.setProperty("--car-bg", car.brandColor)
+
+	const brandModelElement = card.querySelector(".brand-model")
+	const brandElement = card.querySelector(".brand")
+	const modelElement = card.querySelector(".model")
+	const imageElement = card.querySelector(".car-card__image")
+	const yearElement = card.querySelector(".year")
+	const enginePowerElement = card.querySelector(".engine-power")
+	const mileageElement = card.querySelector(".mileage")
+	const priceElement = card.querySelector(".price")
+
 	try {
-		if (!car) {
-			throw new Error("Failed to find car in createCarCardButton")
-		}
-		if (selectedCar) {
-			buttonTemplate = carCardChosenButtonTemplate.content.cloneNode(true)
+		renderCarDetails(
+			car,
+			brandModelElement,
+			brandElement,
+			modelElement,
+			imageElement,
+			yearElement,
+			enginePowerElement,
+			mileageElement,
+			priceElement
+		)
+	} catch (error) {
+		if (error instanceof ReferenceError) {
+			console.error("Null reference when rendering car details")
 		} else {
-			buttonTemplate = carCardButtonTemplate.content.cloneNode(true)
+			console.error(error)
 		}
-		const button = buttonTemplate.querySelector(".car-card__button")
-		button.addEventListener("click", () => {
-			handleCarCardButtonClick(car)
-		})
-		return button
-	} catch (error) {
-		console.error(error)
+	}
+
+	renderCarCardButtons(card, car)
+}
+function renderCarCardsAll() {
+	const container = CardsContainer
+	const cardTemplate = carCardTemplate.content
+
+	container.innerHTML = ""
+
+	for (const car of processedCarsData) {
+		const renderedCard = cardTemplate.cloneNode(true)
+		renderCarCard(renderedCard, car)
+		container.appendChild(renderedCard)
 	}
 }
 
-backButton.addEventListener("click", () => {
+function renderCarCardButtons(card, car) {
+	const container = card.querySelector(".car-card__btns-container")
+	const template = document.getElementById("car-card__btns-template")
+	const buttons = template.content.cloneNode(true)
+	const button = buttons.querySelector(".car-card__btn")
+	const callButton = buttons.querySelector(".phone-btn")
+
+	button.dataset.carId = car.id
+	callButton.dataset.carId = car.id
+
+	button.addEventListener("click", () => handleCarCardButtonClick(car))
+	container.appendChild(buttons)
+}
+function handleCarCardButtonClick(car) {
+	if (!car) {
+		throw new ReferenceError("Null reference for car")
+	}
+
+	const chosenCardId = cleanId(`${car.model}-${car.id}`)
+	const chosenCard = document.getElementById(chosenCardId)
+	if (!chosenCard) {
+		throw new Error(`Could not find card with id: ${chosenCardId}`)
+	}
+
+	try {
+		chosenCard.setAttribute("chosen", "")
+		car.chosen = true
+
+		const allCards = document.querySelectorAll(".car-card")
+		if (!allCards) {
+			throw new ReferenceError("Could not find any car cards")
+		}
+
+		allCards.forEach(card => {
+			if (card !== chosenCard) {
+				card.setAttribute("hidden", "")
+			}
+		})
+
+		renderOrderSection(car.id)
+		renderAccessoryList(car.availableAccessories)
+		updateOrCreateOrder(car)
+		updateUserData(car.id)
+	} catch (err) {
+		if (err instanceof TypeError) {
+			throw err
+		}
+
+		if (!(err instanceof Error)) {
+			throw new Error(`Unknown error: ${err}`)
+		}
+
+		throw err
+	}
+}
+
+////////////////////////////////////////////////
+//////////// back home button click ////////////
+////////////////////////////////////////////////
+backHomeButton.addEventListener("click", handleBackHomeButtonClick)
+function handleBackHomeButtonClick() {
+	if (!accessoriesList) {
+		console.error("Null reference for accessoriesList")
+		return
+	}
+
+	const allCards = document.querySelectorAll(".car-card")
+	if (!allCards) {
+		console.error("Could not find any car cards")
+		return
+	}
+
+	allCards.forEach(card => {
+		if (!card) {
+			console.error("Null reference for card in handleBackHomeButtonClick")
+			return
+		}
+		card.removeAttribute("hidden")
+		card.removeAttribute("chosen")
+	})
+
+	try {
+		accessoriesList.innerHTML = ""
+	} catch (err) {
+		if (err instanceof TypeError) {
+			console.error("Could not set innerHTML of accessoriesList")
+		} else {
+			throw err
+		}
+	}
+
+	if (!carOrderSection) {
+		console.error("Could not find #car-order-section")
+		return
+	}
+
 	try {
 		carOrderSection.hidden = true
 		purchaseSummarySection.hidden = true
-		availableCarsSection.hidden = false
-	} catch (error) {
-		console.error(error)
+	} catch (err) {
+		if (err instanceof TypeError) {
+			console.error(
+				"Could not set hidden flag for carOrderSection or purchaseSummarySection"
+			)
+		} else {
+			throw err
+		}
 	}
-})
-/**
- * Renders car cards into the specified container element.
- *
- * @return {void} This function does not return anything.
- */
-function renderCarCardsAll() {
-	const container = carCardGridContainer
-	const cardTemplate = carCardTemplate.content
+}
 
-	// Clear the container of any existing cards
-	container.innerHTML = ""
+function renderOrderSection(carId) {
+	const orderSection = document.getElementById("car-order-sc")
+	const car = processedCarsData.find(({ id }) => id === carId)
+	const order = getOrder(carId)
+	const carModelElements = document.querySelectorAll("#car-order-sc .model")
+	const carBrandElements = document.querySelectorAll("#car-order-sc .brand")
+	const carPriceElement = document.querySelector("#car-order-sc .price")
+	const accessoriesListContainer = document.getElementById("accessories-list")
+	const totalPriceElement = document.querySelector(
+		"#car-order-sc .total-price-value"
+	)
 
-	// Iterate over the processed car data and render each card
-	processedCarsData.forEach(car => {
-		const card = cardTemplate.cloneNode(true)
+	orderSection.hidden = false
 
-		card.querySelector(".brand-model").textContent = `${car.brand} ${car.model}`
-		card.querySelector(".brand").textContent = car.brand
-		card.querySelector(".model").textContent = car.model
-		card.querySelector(".car-card__image").src = car.images[0]
-		card.querySelector(".year").textContent = car.year
-		card.querySelector(".engine-power").textContent = car.enginePower
-		card.querySelector(".mileage").textContent = car.mileage
-		card.querySelector(".price").textContent = car.price
-		card
-			.querySelector(".car-card")
-			.style.setProperty("--car-bg", car.brandColor)
-		card.querySelector(".car-card").classList.add("car-card--main-grid")
+	carModelElements.forEach(element => (element.textContent = car.model))
+	carBrandElements.forEach(element => (element.textContent = car.brand))
+	carPriceElement.textContent = car.price
 
-		const button = createCarCardButton(car)
-		card.querySelector(".car-card__button-container").appendChild(button)
-		container.appendChild(card)
+	// accessoriesListContainer.innerHTML = ""
+
+	totalPriceElement.textContent = calculateTotalPrice(
+		car.price,
+		order.accessories
+	)
+}
+function renderAccessoryList(accessories) {
+	const listContainer = document.getElementById("accessories-list")
+	listContainer.innerHTML = ""
+	accessories.forEach(accessory => {
+		const template = document.getElementById("accessory-li-template")
+		const listItem = template.content.cloneNode(true)
+		const nameElement = listItem.querySelector(".name.accessory-name")
+		const priceElement = listItem.querySelector(".accessory-price.price")
+		const colorInputElement = listItem.querySelector("add-color-input")
+		const accessoryItem = listItem.querySelector(".accessory-item")
+		const accessoryNameSpan = listItem.querySelector(".name.accessory-name")
+		const addColorInputSpan = listItem.querySelector(".add-color-input")
+		const addRemoveBtn = listItem.querySelector(".add-remove-btn")
+
+		accessoryItem.setAttribute("data-accessory-id", accessory.id)
+		accessoryNameSpan.setAttribute("data-accessory-id", accessory.id)
+		addColorInputSpan.setAttribute("data-accessory-id", accessory.id)
+		addRemoveBtn.setAttribute("data-accessory-id", accessory.id)
+
+		renderAccessoryDetails(
+			accessory,
+			nameElement,
+			priceElement,
+			colorInputElement
+		)
+		listContainer.appendChild(listItem)
+	})
+	removeAddColorIfNotPrimary()
+}
+function removeAddColorIfNotPrimary() {
+	const listItems = document.querySelectorAll(".accessory-item")
+	listItems.forEach(listItem => {
+		const accessoryId = listItem.getAttribute("data-accessory-id")
+		if (accessoryId !== "addColor") {
+			const addColorSpan = listItem.querySelector(".add-color-input")
+			if (addColorSpan) {
+				listItem.removeChild(addColorSpan)
+			}
+		}
 	})
 }
-renderCarCardsAll()
+// Dodaj nasłuchiwanie na zdarzenie kliknięcia przycisku dodawania/usuwania dodatków
+const addRemoveAccessoryBtns = document.querySelectorAll(".add-remove-btn")
+addRemoveAccessoryBtns.forEach(btn => {
+	btn.addEventListener("click", event => {
+		const accessory = event.target.dataset.accessory
+		const addRemoveBtn = event.target
+		handleAddRemoveAccessoryButtonClick(accessory, addRemoveBtn)
+	})
+})
+function handleAddRemoveAccessoryButtonClick(accessory, addRemoveBtn) {
+	const orderData = getOrder(chosenCar.id)
+	const chosenAccessoriesList = document.getElementById(
+		"chosen-accessories-list"
+	)
 
-function renderCarCardChosen() {
-	if (!selectedCar) {
-		return
+	if (addRemoveBtn.getAttribute("add") !== null) {
+		// Add accessory to chosenAccessoriesList
+		const nameElement = listItem.querySelector(".accessory-name")
+		const priceElement = listItem.querySelector(".accessory-price")
+
+		nameElement.textContent = accessory.name
+		priceElement.textContent = accessory.price
+
+		chosenAccessoriesList.appendChild(listItem)
+
+		// Add accessory to chosen accessories array in orderData
+		orderData.chosenAccessories.push(accessory)
+
+		// Update total price
+		document.getElementById("total-price-value").textContent =
+			calculateTotalPrice(chosenCar.price, orderData.chosenAccessories)
+
+		addRemoveBtn.removeAttribute("add")
+		addRemoveBtn.setAttribute("remove", "")
+	} else if (addRemoveBtn.getAttribute("remove") !== null) {
+		// Remove accessory from chosenAccessoriesList
+		const chosenAccessoryItem = document.querySelector(
+			`[data-accessory-id="${accessory.id}"]`
+		)
+		chosenAccessoriesList.removeChild(chosenAccessoryItem)
+
+		// Remove accessory from chosen accessories array in orderData
+		orderData.chosenAccessories = orderData.chosenAccessories.filter(
+			a => a.id !== accessory.id
+		)
+
+		// Update total price
+		document.getElementById("total-price-value").textContent =
+			calculateTotalPrice(chosenCar.price, orderData.chosenAccessories)
+
+		addRemoveBtn.removeAttribute("remove")
+		addRemoveBtn.setAttribute("add", "")
 	}
-	const container = carCardChosenContainer
-	const cardTemplate = carCardTemplate.content
-
-	// Clear the container of any existing cards
-	container.innerHTML = ""
-
-	// Iterate over the processed car data and render each card
-	const card = cardTemplate.cloneNode(true)
-
-	card.querySelector(".brand").textContent = selectedCar.brand
-	card.querySelector(".model").textContent = selectedCar.model
-	card.querySelector(".car-card__image").src = selectedCar.images[0]
-	card.querySelector(".year").textContent = selectedCar.year
-	card.querySelector(".engine-power").textContent = selectedCar.enginePower
-	card.querySelector(".mileage").textContent = selectedCar.mileage
-	card.querySelector(".price").textContent = selectedCar.price
-	card
-		.querySelector(".car-card")
-		.style.setProperty("--car-bg", selectedCar.brandColor)
-	card.querySelector(".car-card").classList.add("car-card--chosen")
-	card
-		.querySelector(".car-card__details-container")
-		.classList.add("car-card-chosen__details-container")
-
-	const button = createCarCardButton(selectedCar)
-	card.querySelector(".car-card__button-container").appendChild(button)
-
-	container.appendChild(card)
 }
-renderCarCardChosen()
 
-function fillSelectedCarOrderHeaderData() {
-	// Pobierz elementy span
-	const modelNameSpan = document.getElementById("chosen-model-name")
-	const brandNameSpan = document.getElementById("chosen-brand-name")
+function calculateTotalPrice(carPrice, accessories) {
+	let totalPrice = carPrice
 
-	try {
-		if (!selectedCar) {
-			console.warn("No car selected")
-			return
-		}
-		modelNameSpan.textContent = selectedCar.model
-		brandNameSpan.textContent = selectedCar.brand
-	} catch (error) {
-		console.error(error)
-	}
+	accessories.forEach(accessory => {
+		totalPrice += accessory.price
+	})
+
+	return totalPrice
 }
-fillSelectedCarOrderHeaderData()
-
-// set the minimum acceptance date to 14 days from the current date and put the minimum date as a placeholder in the input field
-const minPickupDate = new Date()
-minPickupDate.setDate(minPickupDate.getDate() + 14)
-document.getElementById("pickupdate-input").min = minPickupDate
-	.toISOString()
-	.slice(0, 10)
-
-// Get the name input element
-// Utwórz wyrażenie regularne do walidacji imienia
-const nameRegex = /^[a-zA-Z]+( [a-zA-Z]+)+$/
+////////////////////////////////////////////////
+//////// rendering list of pickupPlaces ////////
+////////////////////////////////////////////////
 
 pickupPlaces.forEach(place => {
 	const option = document.createElement("option")
-	option.value = place.name
-	pickupPlacesList.appendChild(option)
+	option.value = place.id
+	option.textContent = place.name
+	pickupPlace.appendChild(option)
 })
 
+////////////////////////////////////////////////
+////////// minimal date for pickupDate /////////
+////////////////////////////////////////////////
+const currentDate = new Date()
+const minDate = new Date(currentDate)
+minDate.setDate(currentDate.getDate() + 14)
+
+pickupDate.min = minDate.toISOString().split("T")[0]
+pickupDate.value = minDate.toISOString().split("T")[0]
+
+//////////////////////////////////////
+////// Obiekt user i order //////////
+//////////////////////////////////////
+
+function updateOrCreateOrder(car) {
+	try {
+		console.log("updateOrCreateOrder called with", car)
+		if (!car) {
+			throw new Error("Null reference for car")
+		}
+		if (!car.id) {
+			throw new Error("Car has no id")
+		}
+
+		console.log("Checking if order for car with id", car.id, "already exists")
+		let orderData = getOrder(car.id)
+		if (!orderData) {
+			console.log("No order found, creating a new one")
+			orderData = {
+				car,
+				accessories: [],
+			}
+		} else {
+			console.log("Order found, updating existing one")
+			orderData.car = car // Aktualizujemy istniejące zamówienie z nowymi danymi samochodu
+		}
+		saveOrder(orderData, car.id)
+		console.log("Update/create order success")
+	} catch (err) {
+		console.error("Error in updateOrCreateOrder:", err)
+		throw err
+	}
+}
+
+function getOrder(carId) {
+	try {
+		let orderData = localStorage.getItem(`order-${carId}`)
+		if (orderData === null) {
+			return null
+		}
+		return JSON.parse(orderData)
+	} catch (e) {
+		if (e instanceof SyntaxError) {
+			return null
+		}
+		throw e
+	}
+}
+
+////////////////////////////////////////////////
+///////////// ///////////
+//////////////////////////////////////////////
+
+function getChosenCar() {
+	console.log("getChosenCar called")
+	const chosenCard = document.querySelector(".car-card[chosen]")
+
+	if (!chosenCard) {
+		console.error("Null reference for chosenCard")
+		return null
+	}
+
+	const carId = chosenCard.getAttribute("data-car-id")
+	if (!carId) {
+		console.error("Null reference for carId")
+		return null
+	}
+
+	const chosenCarId = parseInt(carId)
+	if (Number.isNaN(chosenCarId)) {
+		console.error(`carId ${carId} is not a number`)
+		return null
+	}
+
+	const chosenCar = processedCarsData.find(car => car.id === chosenCarId)
+	if (!chosenCar) {
+		console.error(
+			`Could not find car with id ${chosenCarId} in processedCarsData`
+		)
+		return null
+	}
+
+	console.log("chosenCar:", chosenCar)
+	return chosenCar
+}
+
+function updateUserData(user, carId) {
+	let userData = localStorage.getItem("user")
+
+	if (!userData) {
+		userData = {
+			fullName: user.fullName,
+			pickupPlace: user.pickupPlace,
+			pickupDate: user.pickupDate,
+			paymentMethod: user.paymentMethod,
+			carIds: [carId],
+		}
+	} else {
+		userData = JSON.parse(userData)
+		if (!userData.carIds.includes(carId)) {
+			userData.carIds.push(carId)
+		}
+	}
+	localStorage.setItem("user", JSON.stringify(userData))
+}
+
+function getUserDetails() {
+	const user = {
+		fullName: fullName.value,
+		pickupPlace: pickupPlace.value,
+		pickupDate: pickupDate.value,
+		paymentMethod: paymentMethod.value,
+	}
+	return user
+}
+
+function clearUserDetails() {
+	localStorage.removeItem("user")
+}
+
+function saveOrder(order, carId) {
+	localStorage.setItem(`order-${carId}`, JSON.stringify(order))
+}
+
+function clearOrder(carId) {
+	localStorage.removeItem(`order-${carId}`)
+}
+////////////////////////////////////////////////
+///////////// accessory list render ////////////
+////////////////////////////////////////////////
+
+// TODO: add the ability to add and remove an accessory from the order
+
+/////////////////////////////////////////////////////////////////
 // Set a listen on the input event to check validation on the fly
-if (nameInputElement) {
-	nameInputElement.addEventListener("input", () => {
-		// Check for bugs such as null pointer references, unhandled exceptions, and more.
-		// If you don't see anything obvious, reply that things look good and that the user can reply with a stack trace to get more information.
+/////////////////////////////////////////////////////////////////
+const nameRegex = /^[a-zA-Z]+ [a-zA-Z]+$/
+if (fullName) {
+	fullName.addEventListener("input", () => {
 		try {
-			const nameValue = nameInputElement.value
+			const nameValue = fullName.value
+			if (nameValue === null || nameValue === undefined) {
+				throw new Error("Null or undefined name value")
+			}
+
 			if (nameRegex.test(nameValue)) {
-				nameInputElement.classList.remove("invalid")
-				nameInputElement.classList.add("valid")
+				fullName.removeAttribute("invalid")
+				fullName.setAttribute("valid", "")
 			} else {
-				nameInputElement.classList.remove("valid")
-				nameInputElement.classList.add("invalid")
+				fullName.removeAttribute("valid")
+				fullName.setAttribute("invalid", "")
 			}
 		} catch (error) {
 			console.error(error)
 		}
 	})
+} else {
+	console.error("Could not find #full-name-input")
 }
+////////////////////////////////
+// confirmation button click ///
+///////////////////////////////
+formConfirmButton.addEventListener("click", handleFormConfirmButtonClick)
 
-// Funkcja obsługująca kliknięcia przycisków in accessories list
-
-//
-//
-//
-//
-//
-//
-//
-//
-
-// Funkcja renderująca listę akcesoriów
-function renderAccessoriesList(car) {
-	try {
-		if (!accessoriesListContainer) {
-			throw new Error("Failed to find accessories list container")
-		}
-		const itemTemplate = document.getElementById("accessory-li-template")
-		if (!itemTemplate) {
-			throw new Error("Failed to find accessory list item template")
-		}
-		if (!selectedCar) {
-			throw new Error("No car selected")
-		}
-		if (car !== selectedCar) {
-			return
-		}
-		accessoriesListContainer.innerHTML = ""
-
-		if (
-			!car.availableAccessories ||
-			!Array.isArray(car.availableAccessories) ||
-			car.availableAccessories.length === 0
-		) {
-			const noAccesoriesParagraph = document.createElement("p")
-			noAccesoriesParagraph.textContent = "No accessories available"
-			accessoriesListContainer.appendChild(noAccesoriesParagraph)
-			return
-		}
-
-		car.availableAccessories.forEach(accessory => {
-			// Klonujemy element template
-			const itemClone = itemTemplate.content.cloneNode(true)
-
-			const nameEl = itemClone.querySelector(".accessory-name")
-			const priceEl = itemClone.querySelector(".accessory-price")
-			const addButton = itemClone.querySelector(".toggle-button")
-
-			// Sprawdzamy, czy elementy dostępne
-			if (!nameEl || !priceEl || !addButton) {
-				throw new Error("Failed to find accessory element")
-			}
-
-			nameEl.textContent = accessory.name
-			priceEl.textContent = accessory.price
-
-			const addColorSpan = itemClone.querySelector(".add-color-accessory")
-			if (addColorSpan && accessory.id === "addColor") {
-				addColorSpan.hidden = false
-			}
-
-			// Sprawdzamy, czy akcesorium już istnieje w zamówieniu
-			const orderItems = document
-				.getElementById("order-summary-list")
-				.getElementsByClassName("accessory-item-summary")
-			const accessoryExists = Array.from(orderItems).some(item =>
-				item.textContent.includes(accessory.name)
-			)
-
-			// Ustawiamy odpowiednią klasę przycisku w zależności od tego, czy akcesorium jest już w zamówieniu
-			if (accessoryExists) {
-				addButton.classList.remove("add-accessory")
-				addButton.classList.add("remove-accessory")
-				addButton.textContent = "-"
-			} else {
-				addButton.classList.remove("remove-accessory")
-				addButton.classList.add("add-accessory")
-				addButton.textContent = "+"
-			}
-
-			// Dodajemy klonowane elementy do listy akcesoriów
-			accessoriesListContainer.appendChild(itemClone)
-		})
-	} catch (error) {
-		console.error(error)
-	}
-}
-
-function handleAccessoriesButtonsClick(addButton, accessory, orderSummaryList) {
-	try {
-		if (!orderSummaryList) {
-			throw new Error("Failed to find order summary list")
-		}
-		if (!addButton) {
-			throw new Error("Failed to find add button")
-		}
-		if (!accessory) {
-			throw new Error("Failed to find accessory")
-		}
-	} catch (error) {
-		console.error(error)
+function handleFormConfirmButtonClick() {
+	if (!validateForm()) {
+		alert("Fill in all required fields, please!")
 		return
 	}
 
-	addButton.addEventListener("click", () => {
-		try {
-			const orderItem = document.createElement("li")
-			orderItem.classList.add("accessory-item-summary")
-			orderItem.id = `accessory-${accessory.id}`
-			orderItem.dataset.id = accessory.cleanId
-			orderItem.innerHTML = `<span class="accessory-name">${accessory.name}</span> | <span class="accessory-price">${accessory.price}</span>`
-			orderSummaryList.appendChild(orderItem)
+	availableCarsSection.hidden = true
+	carOrderSection.hidden = true
+	purchaseSummarySection.hidden = false
 
-			let order = JSON.parse(localStorage.getItem("order")) || []
-			order.push({ name: accessory.name, price: accessory.price })
-			localStorage.setItem("order", JSON.stringify(order))
-
-			addButton.classList.remove("add-accessory")
-			addButton.classList.add("remove-accessory")
-			addButton.textContent = "-"
-
-			const priceSpan = orderItem.querySelector(".accessory-price")
-			if (!priceSpan) {
-				throw new Error("Failed to find price span")
-			}
-			priceSpan.classList.add("price")
-
-			// const ifColorPicker = orderItem.querySelector("add-color-accessory")
-			// if (!ifColorPicker) {
-			// 	throw new Error("Failed to find color picker")
-			// }
-			// ifColorPicker.classList.add("chosen-color")
-		} catch (error) {
-			console.error(error)
-		}
-
-		const orderItems = orderSummaryList.getElementsByClassName(
-			"accessory-item-summary"
-		)
-		const accessoryExists = Array.from(orderItems).some(item =>
-			item.textContent.includes(accessory.name)
-		)
-
-		if (accessoryExists) {
-			addButton.classList.remove("add-accessory")
-			addButton.classList.add("remove-accessory")
-			addButton.textContent = "-"
-		} else {
-			addButton.classList.remove("remove-accessory")
-			addButton.classList.add("add-accessory")
-			addButton.textContent = "+"
-		}
-	})
+	clearLocalStorage()
+	alert("Thakns for your order!")
 }
-// Funkcja do obsługi złożenia zamówienia
-function submitOrder(event) {
-	try {
-		event.preventDefault() // Zapobiega domyślnemu zachowaniu przycisku "submit"
 
-		// Pobierz dane z formularza
-		const fullname = document.getElementById("fullname").value
-		const pickupplace = document.getElementById("pickupplace").value
-		const pickupdate = document.getElementById("pickupdate").value
-		const chosenColor = document.getElementById("chosen-color").textContent
-		// Pobierz więcej danych z formularza według potrzeb
+function validateForm() {
+	if (
+		!fullName.value ||
+		!pickupDate.value ||
+		!pickupPlace.value ||
+		!paymentMethod.value
+	) {
+		return false
+	}
 
-		// Sprawdzamy, czy wszystkie dane zostały podane
-		if (!fullname || !pickupplace || !pickupdate || !chosenColor) {
-			throw new Error("All fields must be filled")
+	return true
+}
+
+function clearLocalStorage() {
+	localStorage.clear()
+}
+
+////////////////////////////////
+////  welcome popup code  //////
+////////////////////////////////
+
+const welcomePopup = document.getElementById("welcome-popup")
+const closePopupBtn = document.getElementById("close-popup-btn")
+
+closePopupBtn.addEventListener("click", hidePopupWithOverlay)
+function showPopupWithOverlay() {
+	welcomePopup.style.display = "block"
+}
+
+function hidePopupWithOverlay() {
+	welcomePopup.style.display = "none"
+}
+
+//////////////////////////////////////////////
+///////// welcome popup & countdown //////////
+//////////////////////////////////////////////
+// welcome popup countdown
+function updateCountdown(time) {
+	const countdownElement = document.getElementById("countdown")
+	countdownElement.textContent = time
+}
+function startCountdown(minutes) {
+	let remainingSeconds = minutes * 60
+	updateCountdown(formatTime(remainingSeconds))
+
+	const countdownInterval = setInterval(() => {
+		remainingSeconds--
+
+		if (remainingSeconds <= 0) {
+			clearInterval(countdownInterval)
+			hidePopupWithOverlay()
+		} else {
+			updateCountdown(formatTime(remainingSeconds))
 		}
+	}, 1000)
+}
+function formatTime(seconds) {
+	const minutes = Math.floor(seconds / 60) // count the number of minutes
+	const remainingSeconds = seconds % 60 // count the number of seconds
 
-		// Pobierz informacje o zamówieniu z local storage
-		let order = JSON.parse(localStorage.getItem("order")) || {}
+	// format the time to "mm:ss"
+	const formattedMinutes = String(minutes).padStart(2, "0") // leading zero
+	const formattedSeconds = String(remainingSeconds).padStart(2, "0") // leading zero
 
-		// Pobierz informacje o wybranym pojeździe z local storage
-		const selectedCar = JSON.parse(localStorage.getItem("selectedCar"))
+	return `${formattedMinutes}:${formattedSeconds}`
+}
 
-		// Dodaj lub zaktualizuj zamówienie dla wybranego pojazdu
-		order[selectedCar.id] = {
-			fullname,
-			pickupplace,
-			pickupdate,
-			chosenColor,
-		} // Zakładam, że identyfikatorem pojazdu jest jego unikalne id
+// show welcome popup and start countdown
+document.addEventListener("DOMContentLoaded", () => {
+	showPopupWithOverlay()
+	startCountdown(9) // start countdown for 9 minutes
+})
 
-		// Zapisz zamówienia w local storage
-		localStorage.setItem("order", JSON.stringify(order))
+/////////////////////////////////////////////////////////
+/////// get current year for copy and other using ///////
+/////////////////////////////////////////////////////////
+const currentYear = new Date().getFullYear()
+document.getElementById("current-year").textContent = currentYear
 
-		// Możesz dodać dodatkowe operacje, np. powiadomienie użytkownika o złożeniu zamówienia
+////////////////////////////////////////////////
+//// event listener for the page load event ////
+////////////////////////////////////////////////
+window.addEventListener("load", () => {
+	try {
+		initApp() // Uruchomienie funkcji initApp() po załadowaniu strony
 	} catch (error) {
 		console.error(error)
 	}
-}
-
-const colorPicker = document.getElementById("color-picker")
-if (colorPicker) {
-	colorPicker.addEventListener("input", function () {
-		// W tym miejscu możesz zaktualizować wygląd elementu lub wykonać inne akcje po zmianie wartości color-picker
-		const selectedColor = this.value
-		console.log("Wybrany kolor:", selectedColor)
-	})
-}
+})

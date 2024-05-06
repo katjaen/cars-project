@@ -1,3 +1,32 @@
+.popup {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	width: 90vw;
+	max-width: 600px;
+	transform: translate(-50%, -50%);
+	background-color: var(--accent);
+	padding: var(--space-xl);
+	border: 0;
+	z-index: 9999;
+}
+.popup p {
+	margin-bottom: var(--space-xs);
+}
+#close-popup-btn {
+	position: fixed;
+	top: var(--space-s);
+	right: 0;
+}
+#overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.8);
+	z-index: 999;
+}
 .cars-container--grid,
 .car-card-chosen-container {
 	display: grid;
@@ -13,8 +42,9 @@
 	position: relative;
 	min-height: 250px;
 	padding: var(--space-xs);
+	letter-spacing: 1px;
 }
-.car-card--chosen {
+.car-card[chosen] {
 	position: relative;
 	padding-top: var(--space-xs);
 	grid-column: span 10;
@@ -26,188 +56,83 @@
 		transparent calc(100% - var(--space-l))
 	);
 }
-.car-card img {
+.car-card__image {
 	position: absolute;
 	bottom: 0;
+	left: 0;
+	max-width: 100%;
+}
+
+.car-card .car-card__image {
 	max-height: 80%;
 }
-.car-card {
-	/* padding: var(--space-xs); */
-	letter-spacing: 1px;
+
+.car-card[chosen] .car-card__title {
+	display: none;
 }
-.car-card--chosen h2,
-.car-card--chosen p {
+.car-card[chosen] .car-card__image {
+	max-height: 105%;
+}
+.car-card[chosen] h2,
+.car-card[chosen] p {
 	margin-inline-start: var(--space-xl);
 }
 .car-card h2 {
 	font-size: 1.8em;
 	line-height: 1;
-	font-weight: 400;
+	font-weight: var(--weigth-m);
 	text-transform: uppercase;
 	max-width: 14ch;
 }
 
-@media (min-width: 1000px) {
-	.car-card--main-grid:nth-child(1) {
-		font-size: 1.4em;
-		grid-column: span 7;
-		grid-row: span 2;
-		background-image: linear-gradient(
-			to left,
-			var(--car-bg) calc(100% - var(--space-l)),
-			transparent calc(100% - var(--space-l))
-		);
-	}
-	.car-card--main-grid:nth-child(1) h2,
-	.car-card--main-grid:nth-child(1) p {
-		margin-inline-start: var(--space-l);
-	}
-
-	.car-card--main-grid:nth-child(2) {
-		grid-column: span 3;
-		grid-row: span 1;
-		background-image: linear-gradient(
-			to right,
-			var(--car-bg) calc(100% - var(--space-l)),
-			transparent calc(100% - var(--space-l))
-		);
-	}
-
-	.car-card--main-grid:nth-child(3) {
-		grid-column: span 3;
-		grid-row: span 1;
-		background-image: linear-gradient(
-			to right,
-			var(--car-bg) calc(100% - var(--space-l)),
-			transparent calc(100% - var(--space-l))
-		);
-	}
-
-	.car-card--main-grid:nth-child(n + 4):nth-child(2n) {
-		grid-column: span 5;
-		grid-row: span 1;
-		background-image: linear-gradient(
-			to left,
-			var(--car-bg) calc(100% - var(--space-l)),
-			transparent calc(100% - var(--space-l))
-		);
-	}
-	.car-card--main-grid:nth-child(n + 4):nth-child(2n) h2,
-	.car-card--main-grid:nth-child(n + 4):nth-child(2n) p {
-		margin-inline-start: var(--space-l);
-	}
-
-	.car-card--main-grid:nth-child(n + 4):nth-child(2n + 1) {
-		grid-column: span 5;
-		grid-row: span 1;
-		background-image: linear-gradient(
-			to right,
-			var(--car-bg) calc(100% - var(--space-l)),
-			transparent calc(100% - var(--space-l))
-		);
-	}
+.car-card:not(.car-card[chosen]) .phone-btn {
+	display: none;
+}
+.car-card[chosen] .car-card__btn {
+	display: none;
 }
 
-@media (max-width: 1000px) {
-	.cars-container--grid,
-	.car-card-chosen-container {
-		width: 100%;
-	}
-	.car-card--main-grid {
-		grid-column: span 5;
-		grid-row: span 1;
-	}
-	.car-card--main-grid:nth-child(1) {
-		min-height: clamp(22rem, 35.294vw + 14.941rem, 37rem);
-		font-size: 1.8em;
-		grid-column: span 10;
-		grid-row: span 6;
-		background-image: linear-gradient(
-			to left,
-			var(--car-bg) calc(100% - var(--space-l)),
-			transparent calc(100% - var(--space-l))
-		);
-		margin-right: var(--space-l);
-	}
-	.car-card--main-grid:nth-child(2n) {
-		background-image: linear-gradient(
-			to left,
-			var(--car-bg) calc(100% - var(--space-l)),
-			transparent calc(100% - var(--space-l))
-		);
-	}
-	.car-card--main-grid:nth-child(2n + 3) {
-		background-image: linear-gradient(
-			to right,
-			var(--car-bg) calc(100% - var(--space-l)),
-			transparent calc(100% - var(--space-l))
-		);
-	}
-	.car-card--main-grid:nth-child(1) h2,
-	.car-card--main-grid:nth-child(1) p,
-	.car-card--main-grid:nth-child(2n) h2,
-	.car-card--main-grid:nth-child(2n) p {
-		margin-left: var(--space-l);
-	}
-}
-@media (max-width: 450px) {
-	.car-card--main-grid:nth-child(1) {
-		font-size: 1em;
-	}
-	.car-card--main-grid h2 {
-		font-size: 1em;
-	}
-	.footer-row {
-		flex-direction: column;
-		gap: var(--space-xs);
-		padding: var(--space-xl) 0;
-	}
-	.social-media-list {
-		width: fit-content;
-	}
-	.cars-footer__line {
-		display: none;
-	}
-	.copy-text {
-		width: fit-content;
-	}
-}
+/************************ */
 /* car card details style */
+/************************ */
 .car-card__details-container {
 	position: absolute;
+	top: 0;
 	right: 0;
-	bottom: 0;
 	background-color: var(--accent);
-	min-width: fit-content;
-	width: 100%;
 	height: 100%;
 	padding: var(--space-s);
 	align-content: center;
+}
+.car-card[chosen] .car-card__details-container {
+	width: 50%;
+	opacity: 1;
+	z-index: 30;
+}
+.car-card:not(.car-card[chosen]) .car-card__details-container {
+	width: 100%;
 	opacity: 0;
 	transition: opacity 0.3s ease;
 }
-.car-card__details-container:hover {
-	opacity: 1;
-}
-.car-card-chosen__details-container {
-	width: 50%;
+.car-card:not([chosen]) .car-card__details-container:hover {
 	opacity: 1;
 }
 .car-card__details-container li {
 	padding-left: var(--space-m);
 	letter-spacing: 0;
 }
-.car-card__details-container li::after {
+.car-card__details-container li:after {
 	font-size: var(--small);
-	font-weight: 500;
+	font-weight: var(--weigth-m);
 }
 .car-card__details-container li:nth-child(1) {
 	margin-bottom: var(--space-s);
 	padding-left: var(--space-xs);
 }
+
 .brand-model {
 	text-decoration: underline;
-	font-weight: 600;
+	font-weight: var(--weigth-m);
 }
 .year::before {
 	content: "Year: ";
@@ -231,10 +156,136 @@
 .total-price {
 	margin-top: var(--space-s);
 	padding: var(--space-s) 0;
-	font-weight: 500;
+	font-weight: var(--weigth-m);
 	border-top: 1px solid var(--base);
 	width: fit-content;
 }
 #back-home-btn {
 	transform: translateX(-25px);
+}
+
+@media (max-width: 1000px) {
+	.cars-container--grid,
+	.car-card-chosen-container {
+		width: 100%;
+	}
+	.car-card:not(.car-card[chosen]) {
+		grid-column: span 5;
+		grid-row: span 1;
+	}
+	.car-card:not(.car-card[chosen]):nth-child(1) {
+		min-height: clamp(22rem, 35.294vw + 14.941rem, 37rem);
+		font-size: 1.8em;
+		grid-column: span 10;
+		grid-row: span 6;
+		background-image: linear-gradient(
+			to left,
+			var(--car-bg) calc(100% - var(--space-l)),
+			transparent calc(100% - var(--space-l))
+		);
+		margin-right: var(--space-l);
+	}
+	.car-card:not(.car-card[chosen]):nth-child(2n) {
+		background-image: linear-gradient(
+			to left,
+			var(--car-bg) calc(100% - var(--space-l)),
+			transparent calc(100% - var(--space-l))
+		);
+	}
+	.car-card:not(.car-card[chosen]):nth-child(2n + 3) {
+		background-image: linear-gradient(
+			to right,
+			var(--car-bg) calc(100% - var(--space-l)),
+			transparent calc(100% - var(--space-l))
+		);
+	}
+	.car-card:not(.car-card[chosen]):nth-child(1) h2,
+	.car-card:not(.car-card[chosen]):nth-child(1) p,
+	.car-card:not(.car-card[chosen]):nth-child(2n) h2,
+	.car-card:not(.car-card[chosen]):nth-child(2n) p {
+		margin-left: var(--space-l);
+	}
+}
+@media (max-width: 450px) {
+	.car-card:not(.car-card[chosen]):nth-child(1) {
+		font-size: 1em;
+	}
+	.car-card:not(.car-card[chosen]) h2 {
+		font-size: 1em;
+	}
+	.footer-row {
+		flex-direction: column;
+		gap: var(--space-xs);
+		padding: var(--space-xl) 0;
+	}
+	.social-media-list {
+		width: fit-content;
+	}
+	.cars-footer__line {
+		display: none;
+	}
+	.copy-text {
+		width: fit-content;
+	}
+}
+
+@media (min-width: 1000px) {
+	.car-card:not(.car-card[chosen]):nth-child(1) {
+		font-size: 1.4em;
+		grid-column: span 7;
+		grid-row: span 2;
+		background-image: linear-gradient(
+			to left,
+			var(--car-bg) calc(100% - var(--space-l)),
+			transparent calc(100% - var(--space-l))
+		);
+	}
+	.car-card:not(.car-card[chosen]):nth-child(1) h2,
+	.car-card:not(.car-card[chosen]):nth-child(1) p {
+		margin-inline-start: var(--space-l);
+	}
+
+	.car-card:not(.car-card[chosen]):nth-child(2) {
+		grid-column: span 3;
+		grid-row: span 1;
+		background-image: linear-gradient(
+			to right,
+			var(--car-bg) calc(100% - var(--space-l)),
+			transparent calc(100% - var(--space-l))
+		);
+	}
+
+	.car-card:not(.car-card[chosen]):nth-child(3) {
+		grid-column: span 3;
+		grid-row: span 1;
+		background-image: linear-gradient(
+			to right,
+			var(--car-bg) calc(100% - var(--space-l)),
+			transparent calc(100% - var(--space-l))
+		);
+	}
+
+	.car-card:not(.car-card[chosen]):nth-child(n + 4):nth-child(2n) {
+		grid-column: span 5;
+		grid-row: span 1;
+		background-image: linear-gradient(
+			to left,
+			var(--car-bg) calc(100% - var(--space-l)),
+			transparent calc(100% - var(--space-l))
+		);
+	}
+	.car-card:not(.car-card[chosen]):nth-child(n + 4):nth-child(2n) h2,
+	.car-card:not(.car-card[chosen]):nth-child(n + 4):nth-child(2n) p {
+		margin-inline-start: var(--space-l);
+	}
+
+	.car-card:not(.car-card[chosen]):nth-child(n + 4):nth-child(2n + 1) {
+		grid-column: span 5;
+		grid-row: span 1;
+		background-image: linear-gradient(
+			to right,
+			var(--car-bg) calc(100% - var(--space-l)),
+			transparent calc(100% - var(--space-l))
+		);
+	}
 }

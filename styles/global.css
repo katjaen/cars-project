@@ -12,10 +12,10 @@
 	/* color variables */
 	--accent: #ffd600;
 	--base: #433b3b;
-	--links: #7c7b7b;
+	--grey: #7c7b7b;
+	--pale: #dad5d5;
 	--white: #ffffff;
 	--black: #000000;
-	--pale: #dad5d5;
 	--individualcar: #fec7c7;
 	--valid: #6c9d6c;
 	--invalid: #e66d6d;
@@ -28,6 +28,13 @@
 	--bg2: #e5eded;
 	--bg3: #e2e7e0;
 	--bg4: #f1ebcd;
+
+	/* picker colors for individual color cars */
+	/* --picker-1: #fec7c7;
+	--picker-2: #459ea8;
+	--picker-3: #7db296;
+	--picker-4: #e0e187;
+	--picker-5: #9a4b72; */
 
 	/* space variables */
 	--grid-gap: 10px;
@@ -44,7 +51,7 @@
 	--icons-themify: "Themify";
 
 	/* font size variables */
-	--p: 16px;
+	--p: clamp(1rem, 0.056vw + 0.989rem, 1.1rem);
 	--h1: calc(var(--h2) * 1.2);
 	--h2: calc(var(--h3) * 1.2);
 	--h3: calc(var(--h4) * 1.2);
@@ -57,7 +64,7 @@
 	--weigth-m: 500;
 
 	/* currency variables */
-	--currency-symbol: "€";
+	--currency-symbol: " ß";
 
 	text-underline-offset: 0.3em;
 }
@@ -82,6 +89,9 @@ a {
 	text-decoration: underline;
 	text-decoration-thickness: 0.5px;
 	text-underline-offset: 0.2em;
+}
+.uppercase {
+	text-transform: uppercase;
 }
 .crossed-out {
 	text-decoration: line-through;
@@ -122,6 +132,22 @@ button,
 textarea,
 select {
 	font: inherit;
+	font-weight: var(--weigth-m);
+}
+input[type="radio"] {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	width: var(--space-s);
+	height: var(--space-s);
+	transform: translateX(var(--space-xs));
+	border-radius: 50%;
+	border: 0.5px solid var(--pale);
+	box-shadow: 0 2px 4px 1px var(--pale);
+}
+
+input[type="radio"]:checked {
+	background-color: var(--accent);
 }
 p,
 h1,
@@ -167,6 +193,7 @@ p {
 
 .text-content-width {
 	max-width: 600px;
+	margin: auto;
 }
 .c-hr {
 	border: 0.5px solid var(--accent);
@@ -200,14 +227,54 @@ button:focus {
 	outline: none;
 }
 .btn--white {
-	display: inline-block;
 	color: var(--links);
 	background-color: var(--white);
 	margin-top: var(--space-xs);
 }
-.car-card__button {
+.car-card__btn {
 	margin-top: var(--space-s);
 }
+.add-remove-btn {
+	margin-left: var(--space-xs);
+}
+.add-remove-btn[add]:before {
+	content: "\e61a";
+}
+
+.add-remove-btn[remove]:before {
+	content: "\e622";
+}
+#close-popup-btn {
+	background-color: var(--transparent);
+}
+.feedback {
+	position: relative;
+}
+.feedback:hover::before {
+	content: "";
+	position: absolute;
+	bottom: 60%;
+	left: 10%;
+	background-color: var(--base);
+	clip-path: polygon(50% 75%, 0 0, 100% 0);
+	width: var(--space-m);
+	height: var(--space-m);
+}
+
+.feedback:hover::after {
+	content: attr(data-feedback); /* Treść z atrybutu data-feedback */
+	position: absolute;
+	bottom: calc(40% + var(--space-m));
+	left: -10%;
+	transform: translateX(-50%);
+	background-color: var(--base);
+	color: var(--white);
+	padding: var(--space-xs) var(--space-m);
+	border-radius: var(--space-m);
+	white-space: nowrap;
+	z-index: 10;
+}
+
 /*//////////////////////////////////*/
 /*///////// header styling /////////*/
 /*//////////////////////////////////*/
@@ -260,9 +327,10 @@ footer {
 	width: 200px;
 	text-align: end;
 }
+
 .social-media-list li {
 	display: inline-block;
-	margin-left: 10px;
+	margin-right: var(--space-xs);
 }
 .copy-text {
 	width: 200px;
@@ -292,7 +360,10 @@ footer {
 .cars-sc[hidden] {
 	display: none;
 }
-
+.margin-auto {
+	margin-left: auto;
+	margin-right: auto;
+}
 /*//////////////////////////////*/
 /*//////// form styling ////////*/
 /*//////////////////////////////*/
@@ -301,47 +372,37 @@ footer {
 	flex-direction: column;
 	row-gap: var(--space-xs);
 }
+
 ul {
 	list-style-type: none;
 	padding: 0;
 }
-input {
+input,
+textarea,
+select {
 	border-top: 0;
 	border-left: 0;
 	border-right: 0;
 	border-bottom: 0.5px solid var(--base);
 }
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
 	color: var(--pale);
 }
-input:focus {
+input:focus,
+textarea:focus,
+select:focus {
 	outline: none;
 	border: none;
 	border-bottom: 1px solid var(--accent);
 }
-input[type="radio"]:checked {
-	outline: none;
-	border-color: var(--accent);
-	background-color: var(--accent);
-}
-.valid {
+input[valid] {
 	border-bottom: 1px solid var(--valid);
 }
-.invalid {
+input[invalid] {
 	color: var(--invalid);
 }
-#fullname.invalid::after {
-	content: "Full name is required";
-	color: var(--invalid);
-}
-/* Check for null pointer references */
-#fullname.invalid + *:not(:last-child)::after {
-	content: " (null pointer reference)";
-	color: var(--invalid);
-}
-/* Check for unhandled exceptions */
-#fullname.invalid ~ details[open] summary::after {
-	content: " (unhandled exception)";
+.form-required-mark {
 	color: var(--invalid);
 }
 
@@ -398,4 +459,7 @@ input[type="color"] {
 }
 .ti-plus:before {
 	content: "\e61a";
+}
+.ti.close:before {
+	content: "\e646";
 }

@@ -5,159 +5,205 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cars</title>
+    <meta name="description"
+        content="This is a car application created solely for educational purposes as part of a final assignment in JavaScript programming in the field of Front-End Programmer with Angular postgraduate studies at WSB Merito University in Wroclaw.">
     <link rel="stylesheet" href="./styles/global.css" />
     <link rel="stylesheet" href="./styles/mainview.css" />
 </head>
 
 <body>
-    <header id="cars-header" class="cars-header">
-        <div id="cars-header__nav-row" class="cars-header__nav-row"></div>
-        <figure id="cars-header__logo" class="cars-header__logo">
+    <header class="cars-header">
+        <div class="cars-header__nav-row"></div>
+        <figure class="cars-header__logo">
             <img src="./assets/cars-logo.svg" alt="Logo Cars" />
         </figure>
-        <div id="cars-header__line" class="cars-header__line"></div>
+        <div class="cars-header__line"></div>
     </header>
+    <div id="welcome-popup" aria-live="assertive" aria-atomic="true">
+        <div id="overlay">
+            <div id="popup" class="popup content-width-container">
+                <button id="close-popup-btn" class="ti close"
+                    aria-label="Close welcome popup or watch the video and wait for 9 minutes for it to be closed"></button>
+                <p class="medium">This application was created solely for educational purposes* as part of a final
+                    assignment in
+                    JavaScript programming in the field of Front-End Programmer with Angular postgraduate studies at WSB
+                    Merito University in Wrocław.</p>
+                <p class="medium" style="color: red;">* Any resemblance to reality is purely coincidental and no one was
+                    harmed during
+                    the work.</p>
+                <p>The car illustrations used come from <a href="https://www.lego.com/" target="_blank"
+                        aria-label="Link to lego website">lego</a> store</p>
+                <p>It will take <span id="countdown" class="larger medium"></span> minutes until the app reaches you.
+                </p>
+                <p>During this time, you can easily learn how a dachshund works from a
+                    <a href="https://ninateka.pl/vod/animacja/jak-dziala-jamniczek-julian-antonisz/" target="_blank"
+                        aria-label="Link to the film by Julian Antonisz about how a dachshund works">
+                        film by an excellent Polish non-camera artist
+                    </a> – it is also very helpful in understanding how JavaScript and the whole world in general
+                    works…
+                <p class="small">If you don't know Polish, you can use the transcription available on the website</p>
+                </p>
+                <p>(or you can simply reach the application by closing this window)</p>
+            </div>
+        </div>
 
+
+    </div>
     <main>
         <template id="car-card-template">
-            <div id="car-card" class="car-card">
-                <div id="car-card__title" class="car-card__title">
-                    <p id="brand" class="brand"></p>
-                    <h2 id="model" class="model"></h2>
+            <div class="car-card">
+                <div class="car-card__title">
+                    <p><span class="brand"></span></p>
+                    <h2><span class="model"></span></h2>
                 </div>
-                <img id="car-card__image" class="car-card__image" src="" alt="" />
+                <img class="car-card__image" src="" alt="" />
 
-                <div id="car-card__details-container" class="car-card__details-container">
-                    <ul id="car-card__details-container__list" class="car-card__details-container__list">
-                        <li id="brand-model" class="brand-model"></li>
-                        <span></span></li>
-                        <li id="year" class="year"></li>
-                        <li id="engine-power" class="engine-power"></li>
-                        <li id="mileage" class="mileage"></li>
-                        <li id="price" class="price"></li>
+                <div class="car-card__details-container">
+                    <ul class="car-card__details-container__list">
+                        <li class="brand-model"></li>
+                        <li class="year"></li>
+                        <li class="engine-power"></li>
+                        <li class="mileage"></li>
+                        <li class=" price larger medium"></li>
                     </ul>
-                    <div id="car-card__button-container" class="car-card__button-container">
-                        <!-- rendered from car-card__button-template or car-card-chosen__button-template -->
+                    <div class="car-card__btns-container">
+                        <!-- for all car cards and for chosen car card -->
                     </div>
                 </div>
             </div>
         </template>
 
-        <template id="car-card__button-template" class="car-card__button-template">
-            <button class="car-card__button btn--white" aria-label="Want to have it?">Want to have it?</button>
-        </template>
-
-        <template id="car-card-chosen__button-template" class="car-card-chosen__button-template">
-            <button id="phone-btn" class="car-card__button phone-btn btn--white"
+        <template id="car-card__btns-template">
+            <button class="car-card__btn btn--white" data-car-id="" aria-label="Want to have it?">Want to have it?
+            </button>
+            <button class="phone-btn feedback btn--white" data-car-id="" data-feedback="+48000000000"
                 aria-label="Click here to call us"><span class="ti ti-mobile">
                 </span><a href="tel:+48000000000">Call for more info</a>
             </button>
         </template>
 
-        <template id="accessory-li-template"><!-- Szablon dla elementu li z akcesorium o klasie "addColor" -->
-            <li class="accessory-item">
-                <span class="accessory-name">Accessory Name</span> |
-                <span class="add-color-accessory" hidden><label for="color-picker"> pick your
-                        choice: </label><input id="color-picker" type="color" value="#fec7c7"> |
-                    <!-- this span rendered only if accesory id="addColor"--> </span> +
-                <span class="accessory-price price medium">Accessory Price</span> <button
-                    class="toggle-button add-accessory">+</button>
+        <template id="add-color-input-template">
+        </template>
+        <template id="accessory-li-template">
+            <li class="accessory-item" data-accessory-id="accessory-{id}">
+                <span class="accessory-name name"></span> |
+                <span class="add-color-input" data-accessory-id="addColor">
+                    <label for="color-picker">Pick your color: </label>
+                    <input id="color-picker" type="color" value="#fec7c7" data-accessory-id="addColor"> |
+                </span> +
+                <span class="accessory-price price medium" data-accessory-id="accessory-{id}"></span>
+                <button class="add-remove-btn ti" data-accessory-id="accessory-{id}" add></button>
             </li>
         </template>
 
-        <section id="available-cars-sc" class="cars-sc" hidden>
+        <section id="available-cars-sc" class="cars-sc">
             <div id="cars-container-grid" class="cars-container--grid content-width-container" aria-live="polite">
-                <!-- car cards rendered from car-card-template; button is to be car-card__button-template inside class="car-card__button-container"; --car-bg depends on the brand of the car -->
+                <!-- car cards rendered from car-card-template; --car-bg depends on the brand of the car -->
             </div>
         </section>
 
         <section id="car-order-sc" class="cars-sc" hidden>
-            <div id="car-card-chosen-container" class="car-card-chosen-container">
-                <!-- car-card with chosen car rendered from car-card-template - but 1. class="car-card" is to be replaced with "car-card--chosen" 2. car-card__details-container" is to be replaced with "car-card-chosen__details-container" 3. button is to be car-card-chosen__button-template inside <div class="car-card__button-container">-->
-            </div>
+            <div id="order-form-container" class="content-width-container">
+                <div id="title-container" class="text-content-width">
+                    <h1 class="car-order__title ">Order <span class="model"></span>
+                    </h1>
+                    <p class="second-font larger">and go on holiday in your new <span class="brand"></span>!
+                    </p>
 
-            <div class="car-order__title">
-                <h1>Order <span id="chosen-model-name"><!-- chosen ${modelName} --></span></h1>
-                <p class="second-font larger">and go on holiday in your new <span
-                        id="chosen-brand-name"><!-- chosen ${brandName} --></span>!
-                </p>
-            </div>
-            <div class="back-home-btn">
-                <button id="back-home-btn" class="btn--white" aria-label="Or go home and think it all again">
-                    <span id="ti-arrow-left" class="ti ti-arrow-left"></span> Or go home and think it all
-                </button>
-            </div>
+                    <div class="back-home-btn">
+                        <button id="back-home-btn" class="btn--white" aria-label="Or go home and think it all again">
+                            <span id="ti-arrow-left" class="ti ti-arrow-left"></span> Or go home and think it all
+                        </button>
+                    </div>
+                </div>
 
-            <div class="form-container"><!-- form rendered from <template id="car-order-form-template"> --></div>
-            <form id="car-order-form" class="text-content-width" aria-label="Order form">
-                <hr id="c-hr" class="c-hr">
-                <fieldset>
-                    <legend id="medium" class="medium">Personal data:</legend>
-                    <div class="form-row">
-                        <label id="fullname-label" for="fullname">Your
-                            name:</label>
-                        <input id="fullname" type="text" placeholder="e.g. Hatty Ford-Lego" required
-                            aria-label="Enter your full name"><!-- add validation: there must be two strings with space between -->
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend id="medium" class="medium">Order details:</legend>
-                    <div class="form-row">
-                        <label id="pickupplace-label" for="pickupplace-input">Car pickup location:</label>
-                        <input id="pickupplace-input" type="text" placeholder="e.g. CarLand" required
-                            aria-label="Enter the car pickup location">
-                        <datalist id="pickup-places">
-                            <!-- Dynamicznie wypełniona lista miejsc -->
-                        </datalist>
-                    </div>
-                    <div class="form-row">
-                        <label id="pickupdate-label" for="pickupdate-input">Car pickup date:</label>
-                        <input id="pickupdate-input" type="date" required min=""
-                            aria-label="Select a date (minimum 14 days from today)"><!-- set the minimum acceptance date to 14 days from the current date and put the minimum date as a placeholder in the input field  -->
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend id="medium" class="medium">Additional accessories:</legend>
-                    <div class="form-row">
-                        <ul id="accessories-list" aria-label="List of additional accessories">
-                            <!-- list rendered from availableAccessories based on template id="accessory-li-template" for accessories and based on template id="add-color-accessory-li-template" for accessory with id="addColor" for the selected car [if there is such available for the car]-->
-                        </ul>
-                    </div>
-                </fieldset>
-                <hr id="c-hr" class="c-hr">
-                <fieldset id="payment-method-field">
-                    <legend id="medium" class="medium">Payment method:</legend>
-                    <div class="form-row">
-                        <ul>
-                            <li>
-                                <label for="cash-payment-input" aria-label="Select cash as the payment method">Cash
-                                    <input id="cash-payment-input" type="radio" name="paymentMethod" value="cash">
-                            </li>
-                            <li>
-                                <label for="leasing-payment-input"
-                                    aria-label="Select leasing as the payment method">Leasing</label>
-                                <input id="leasing-payment-input" type="radio" name="paymentMethod" value="leasing">
-                            </li>
-                        </ul>
-                    </div>
-                </fieldset>
-                <hr id="c-hr" class="c-hr">
-                <fieldset id="order-summary-fieldset">
-                    <legend id="medium" class="medium">Order summary:</legend>
-                    <div id="order-summary-list-container" class="form-row">
-                        <ul id="order-summary-list" aria-live="polite" aria-label="Order summary list">
-                            <!-- list rendered based on user inputs -->
-                        </ul>
-                    </div>
-                </fieldset>
-                <button id="form-confirm-btn" type="submit" aria-label="Confirm order">Confirm order</button>
-            </form>
+                <form id="car-order-form" class="text-content-width" aria-label="Order form">
+                    <hr class="c-hr">
+                    <fieldset id="personal-data-field">
+                        <legend id="personal-data" class="medium">Personal data: <span
+                                class="form-required-mark">*</span></legend>
+                        <div class="form-row">
+                            <label id="fullname-label" for="full-name">Your name: </label>
+                            <input id="full-name" class="full-name feedback" type="text"
+                                data-feedback="Required format: First name Surname separated by space"
+                                pattern="^[a-zA-Z]+ [a-zA-Z]+$"
+                                title="Required format: First name Surname separated by space"
+                                placeholder="e.g. Hatty Ford-Lego" required aria-label="Enter your full name">
+                        </div>
+                    </fieldset>
+                    <fieldset id="pickup-details-field">
+                        <legend id="pickup-details" class="medium">Order details: <span
+                                class="form-required-mark">*</span></legend>
+                        <div class="form-row">
+                            <label id="pickup-place-label" for="pickup-place">Car pickup location:</label>
+                            <select id="pickup-place" required aria-label="Select the car pickup location">
+                                <!-- added from pickupPlaces -->
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label id="pickup-date-label" required for="pickup-date">Car pickup date. The first possible
+                                one
+                                is:</label>
+                            <input id="pickup-date" type="date" required
+                                aria-label="Select a date (minimum 14 days from today)">
+                        </div>
+                    </fieldset>
+                    <fieldset id="available-accessories-field">
+                        <legend id="accessories" class="medium">Additional accessories:</legend>
+                        <div class="form-row">
+                            <ul id="accessories-list" aria-label="List of additional accessories">
+                                <!-- list rendered from availableAccessories of selected car and based on template id="accessory-li-template"-->
+                            </ul>
+                        </div>
+                    </fieldset>
+                    <hr class="c-hr">
+                    <fieldset id="payment-method-field">
+                        <legend id="medium" class="medium">Payment method: <span class="form-required-mark">*</span>
+                        </legend>
+                        <div class="form-row">
+                            <ul>
+                                <li>
+                                    <label for="miser-payment" aria-label="Jelly bears payment method">Jelly
+                                        bears</label>
+                                    <input id="miser-payment" required type="radio" name="paymentMethod"
+                                        value="miser" />
+                                </li>
+                                <li>
+                                    <label for="generous-payment" aria-label="Leasing payment method">Lot of jelly
+                                        bears</label>
+                                    <input id="generous-payment" required type="radio" name="paymentMethod"
+                                        value="generous" />
+                                </li>
+                            </ul>
+                            <div class="invalid-message" hidden aria-live="assertive"></div>
+                        </div>
+                    </fieldset>
+                    <hr class="c-hr">
+                    <fieldset id="order-summary-field" aria-label="Order summary list">
+                        <legend class="medium">Order summary:</legend>
+                        <div id="order-summary-list-container" class="form-row">
+                            <p id="chosen-car" class="brand-model">
+                                <span class="brand"></span>
+                                <span class="model"></span> |
+                                <span class="price"></span>
+                            </p>
+                            <ul id="chosen-accessories-list" aria-live="polite">
+                                <!-- list rendered based on user inputs -->
+                            </ul>
+                            <p id="total-price" class="total-price price">Total price:
+                                <span class="total-price-value"></span>
+                            </p>
+                        </div>
+                    </fieldset>
+                    <button id="form-confirm-btn" type="submit" aria-label="Confirm order">Confirm order</button>
+                </form>
+            </div>
         </section>
 
-        <section id="purchase-summary" class="cars-sc" hidden>
+        <section id="purchase-summary-sc" class="cars-sc" hidden>
             <div class="purchase-summary-container" aria-live="polite">
                 <p> In <!-- number of days resulting from user input pickupDate rendered--> days your new
-                    <!-- ${brandName} ${modelName} of ordered car rendered--> will be available for pickup in
+                    <span class="brand"></span> <span class="model"></span> will be available for pickup in
                     <!-- user input pickupPlace rendered-->.
                 </p>
             </div>
@@ -165,27 +211,27 @@
 
     </main>
     <footer>
-        <div id="footer-row" class="footer-row">
-            <ul id="social-media-list" class="social-media-list">
-                <li id="social-media-item" class="social-media-item">
+        <div class="footer-row">
+            <ul class="social-media-list">
+                <li class="social-media-item">
                     <a href="#" aria-label="Facebook" target="_blank">
-                        <img id="social-media-icon" class="social-media-icon" src="./assets/icon-facebook.svg"
+                        <img id="facebook-icon" class="social-media-icon" src="./assets/icon-facebook.svg"
                             alt="Facebook">
                         </img>
                     </a>
                 </li>
                 <li class="social-media-item">
                     <a href="#" aria-label="Instagram" target="_blank">
-                        <img class="social-media-icon" src="./assets/icon-instagram.svg" alt="Instagram">
+                        <img class="instagram-icon" src="./assets/icon-instagram.svg" alt="Instagram">
                         </img>
                     </a>
                 </li>
             </ul>
-            <div id="cars-footer__line" class="cars-footer__line"></div>
-            <p id="copy-text" class="copy-text">Copyright © 2024 Cars</p>
+            <div class="cars-footer__line"></div>
+            <p class="copy-text">Copyright © <span id="current-year"></span> Cars</p>
         </div>
         <div class="footer-row-bottom">
-            <figure id="cars-footer__logo" class="cars-footer__logo">
+            <figure class="cars-footer__logo">
                 <img src="./assets/cars-logo.svg" alt="Cars logo"></img>
             </figure>
         </div>
