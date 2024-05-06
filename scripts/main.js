@@ -7,120 +7,92 @@ const purchaseSummarySection = document.getElementById("purchase-summary-sc")
 const CardsContainer = document.getElementById("cars-container-grid")
 const carCardTemplate = document.getElementById("car-card-template")
 
-const backHomeButton = document.getElementById("back-home-btn")
-
 const fullName = document.getElementById("full-name")
 const pickupDate = document.getElementById("pickup-date")
 const pickupPlace = document.getElementById("pickup-place")
 
-const accessoriesListContainer = document.getElementById("accessories-list")
-const accessoryTemplate = document.getElementById("accessory-li-template")
-const accessoriesList = document.getElementById("accessories-list")
-const accessoriesButton = document.getElementById("accessories-btn")
-
 const orderSummaryList = document.getElementById("chosen-accessories-list")
 
-const formConfirmButton = document.getElementById("form-confirm-btn")
-
 function initApp() {
-	const container = CardsContainer
-	if (!container)
-		throw new ReferenceError("Could not find #cars-container-grid")
-	renderCarCardsAll(container)
+	renderCarCardsAll()
 }
 
-///////////////////////////////////////////////
-/////////////  cars details render ////////////
-///////////////////////////////////////////////
+////////////////////////////////////////////////
+//////////// back home button click ////////////
+////////////////////////////////////////////////
+const backHomeButton = document.getElementById("back-home-btn")
+backHomeButton.addEventListener("click", resetOrderAndSummary)
+
+function resetOrderAndSummary() {
+	document.querySelectorAll(".car-card").forEach(card => {
+		card.removeAttribute("hidden")
+		card.removeAttribute("chosen")
+	})
+
+	carOrderSection.hidden = true
+	purchaseSummarySection.hidden = true
+}
+
 function renderCarDetails(
-	car,
-	brandModelElement,
-	brandElement,
-	modelElement,
-	imageElement,
+	{ brand, model, images, year, enginePower, mileage, price },
+	brandModel,
+	brandName,
+	modelName,
+	image,
 	yearElement,
 	enginePowerElement,
 	mileageElement,
 	priceElement
 ) {
-	if (
-		!car ||
-		!brandModelElement ||
-		!brandElement ||
-		!modelElement ||
-		!imageElement ||
-		!yearElement ||
-		!enginePowerElement ||
-		!mileageElement ||
-		!priceElement
-	) {
-		throw new ReferenceError("Missing car data or elements")
-	}
-
-	brandModelElement.textContent = `${car.brand} ${car.model}`
-	brandElement.textContent = car.brand
-	modelElement.textContent = car.model
-	imageElement.src = car.images[0]
-	imageElement.alt = `${car.brand} ${car.model} ${car.year}`
-	yearElement.textContent = car.year
-	enginePowerElement.textContent = car.enginePower
-	mileageElement.textContent = car.mileage
-	priceElement.textContent = car.price
+	image.src = images[0]
+	image.alt = `${brand} ${model} ${year}`
+	brandModel.textContent = `${brand} ${model}`
+	brandName.textContent = brand
+	modelName.textContent = model
+	yearElement.textContent = year
+	enginePowerElement.textContent = enginePower
+	mileageElement.textContent = mileage
+	priceElement.textContent = price
 }
 
-function renderAccessoryDetails(accessory, nameElement, priceElement) {
-	if (!accessory || !nameElement || !priceElement) {
-		throw new ReferenceError("Missing accessory data or elements")
-	}
-	nameElement.textContent = accessory.name
-	priceElement.textContent = accessory.price
+function renderAccessory(accessory, nameEl, priceEl) {
+	nameEl.textContent = accessory.name
+	priceEl.textContent = accessory.price
 }
 
-///////////////////////////////////////////////
-/////////////// render car card //////////////
-///////////////////////////////////////////////
-function renderCarCard(card, car) {
-	const cleanedId = cleanId(`${car.model}-${car.id}`)
+function renderCarCard(card, carData) {
+	const cleanedId = cleanId(`${carData.model}-${carData.id}`)
+	const car = card.querySelector(".car-card")
+	car.id = cleanedId
+	car.dataset.carId = carData.id
+	car.dataset.brand = carData.brand
+	car.dataset.model = carData.model
+	car.dataset.year = carData.year
+	car.dataset.price = carData.price
+	car.style.setProperty("--car-bg", carData.brandColor)
 
-	const carCard = card.querySelector(".car-card")
-	carCard.id = cleanedId
-	carCard.setAttribute("data-car-id", car.id)
-	carCard.setAttribute("data-brand", car.brand)
-	carCard.setAttribute("data-model", car.model)
-	carCard.setAttribute("data-year", car.year)
-	carCard.setAttribute("data-price", car.price)
-	carCard.style.setProperty("--car-bg", car.brandColor)
+	const brandModel = card.querySelector(".brand-model")
+	const brand = card.querySelector(".brand")
+	const model = card.querySelector(".model")
+	const image = card.querySelector(".car-card__image")
+	const year = card.querySelector(".year")
+	const enginePower = card.querySelector(".engine-power")
+	const mileage = card.querySelector(".mileage")
+	const price = card.querySelector(".price")
 
-	const brandModelElement = card.querySelector(".brand-model")
-	const brandElement = card.querySelector(".brand")
-	const modelElement = card.querySelector(".model")
-	const imageElement = card.querySelector(".car-card__image")
-	const yearElement = card.querySelector(".year")
-	const enginePowerElement = card.querySelector(".engine-power")
-	const mileageElement = card.querySelector(".mileage")
-	const priceElement = card.querySelector(".price")
+	renderCarDetails(
+		carData,
+		brandModel,
+		brand,
+		model,
+		image,
+		year,
+		enginePower,
+		mileage,
+		price
+	)
 
-	try {
-		renderCarDetails(
-			car,
-			brandModelElement,
-			brandElement,
-			modelElement,
-			imageElement,
-			yearElement,
-			enginePowerElement,
-			mileageElement,
-			priceElement
-		)
-	} catch (error) {
-		if (error instanceof ReferenceError) {
-			console.error("Null reference when rendering car details")
-		} else {
-			console.error(error)
-		}
-	}
-
-	renderCarCardButtons(card, car)
+	renderCarCardButtons(card, carData)
 }
 function renderCarCardsAll() {
 	const container = CardsContainer
@@ -149,156 +121,66 @@ function renderCarCardButtons(card, car) {
 	container.appendChild(buttons)
 }
 function handleCarCardButtonClick(car) {
-	if (!car) {
-		throw new ReferenceError("Null reference for car")
-	}
+	const chosenCard = document.getElementById(cleanId(`${car.model}-${car.id}`))
+	if (!chosenCard) return
 
-	const chosenCardId = cleanId(`${car.model}-${car.id}`)
-	const chosenCard = document.getElementById(chosenCardId)
-	if (!chosenCard) {
-		throw new Error(`Could not find card with id: ${chosenCardId}`)
-	}
+	chosenCard.setAttribute("chosen", "")
+	car.chosen = true
 
-	try {
-		chosenCard.setAttribute("chosen", "")
-		car.chosen = true
-
-		const allCards = document.querySelectorAll(".car-card")
-		if (!allCards) {
-			throw new ReferenceError("Could not find any car cards")
+	document.querySelectorAll(".car-card").forEach(card => {
+		if (card !== chosenCard) {
+			card.setAttribute("hidden", "")
 		}
-
-		allCards.forEach(card => {
-			if (card !== chosenCard) {
-				card.setAttribute("hidden", "")
-			}
-		})
-
-		renderOrderSection(car.id)
-		renderAccessoryList(car.availableAccessories)
-		updateOrCreateOrder(car)
-		updateUserData(car.id)
-	} catch (err) {
-		if (err instanceof TypeError) {
-			throw err
-		}
-
-		if (!(err instanceof Error)) {
-			throw new Error(`Unknown error: ${err}`)
-		}
-
-		throw err
-	}
-}
-
-////////////////////////////////////////////////
-//////////// back home button click ////////////
-////////////////////////////////////////////////
-backHomeButton.addEventListener("click", handleBackHomeButtonClick)
-function handleBackHomeButtonClick() {
-	if (!accessoriesList) {
-		console.error("Null reference for accessoriesList")
-		return
-	}
-
-	const allCards = document.querySelectorAll(".car-card")
-	if (!allCards) {
-		console.error("Could not find any car cards")
-		return
-	}
-
-	allCards.forEach(card => {
-		if (!card) {
-			console.error("Null reference for card in handleBackHomeButtonClick")
-			return
-		}
-		card.removeAttribute("hidden")
-		card.removeAttribute("chosen")
 	})
 
-	try {
-		accessoriesList.innerHTML = ""
-	} catch (err) {
-		if (err instanceof TypeError) {
-			console.error("Could not set innerHTML of accessoriesList")
-		} else {
-			throw err
-		}
-	}
-
-	if (!carOrderSection) {
-		console.error("Could not find #car-order-section")
-		return
-	}
-
-	try {
-		carOrderSection.hidden = true
-		purchaseSummarySection.hidden = true
-	} catch (err) {
-		if (err instanceof TypeError) {
-			console.error(
-				"Could not set hidden flag for carOrderSection or purchaseSummarySection"
-			)
-		} else {
-			throw err
-		}
-	}
+	renderOrderSection(car)
+	renderAccessoryList(car.availableAccessories)
+	updateOrCreateOrder(car)
+	updateUserData(car.id)
 }
 
-function renderOrderSection(carId) {
+function renderOrderSection(chosenCar) {
 	const orderSection = document.getElementById("car-order-sc")
-	const car = processedCarsData.find(({ id }) => id === carId)
-	const order = getOrder(carId)
-	const carModelElements = document.querySelectorAll("#car-order-sc .model")
-	const carBrandElements = document.querySelectorAll("#car-order-sc .brand")
+	const carModelElement = document.querySelector("#car-order-sc .model")
+	const carBrandElement = document.querySelector("#car-order-sc .brand")
 	const carPriceElement = document.querySelector("#car-order-sc .price")
-	const accessoriesListContainer = document.getElementById("accessories-list")
 	const totalPriceElement = document.querySelector(
 		"#car-order-sc .total-price-value"
 	)
 
 	orderSection.hidden = false
 
-	carModelElements.forEach(element => (element.textContent = car.model))
-	carBrandElements.forEach(element => (element.textContent = car.brand))
-	carPriceElement.textContent = car.price
-
-	// accessoriesListContainer.innerHTML = ""
+	carModelElement.textContent = chosenCar.model
+	carBrandElement.textContent = chosenCar.brand
+	carPriceElement.textContent = chosenCar.price
 
 	totalPriceElement.textContent = calculateTotalPrice(
-		car.price,
-		order.accessories
+		chosenCar.price,
+		getOrder(chosenCar.id).accessories
 	)
 }
 function renderAccessoryList(accessories) {
 	const listContainer = document.getElementById("accessories-list")
 	listContainer.innerHTML = ""
 	accessories.forEach(accessory => {
-		const template = document.getElementById("accessory-li-template")
-		const listItem = template.content.cloneNode(true)
-		const nameElement = listItem.querySelector(".name.accessory-name")
-		const priceElement = listItem.querySelector(".accessory-price.price")
-		const colorInputElement = listItem.querySelector("add-color-input")
+		const accessoryLiTemplate = document.getElementById("accessory-li-template")
+		const listItem = accessoryLiTemplate.content.cloneNode(true)
+		const nameElement = listItem.querySelector(".accessory-name")
+		const priceElement = listItem.querySelector(".accessory-price")
+		const colorInputElement = listItem.querySelector("input[type=color]")
 		const accessoryItem = listItem.querySelector(".accessory-item")
-		const accessoryNameSpan = listItem.querySelector(".name.accessory-name")
-		const addColorInputSpan = listItem.querySelector(".add-color-input")
 		const addRemoveBtn = listItem.querySelector(".add-remove-btn")
 
-		accessoryItem.setAttribute("data-accessory-id", accessory.id)
-		accessoryNameSpan.setAttribute("data-accessory-id", accessory.id)
-		addColorInputSpan.setAttribute("data-accessory-id", accessory.id)
-		addRemoveBtn.setAttribute("data-accessory-id", accessory.id)
+		accessoryItem.dataset.accessoryId = accessory.id
+		nameElement.textContent = accessory.name
+		priceElement.textContent = accessory.price
+		addRemoveBtn.dataset.accessoryId = accessory.id
 
-		renderAccessoryDetails(
-			accessory,
-			nameElement,
-			priceElement,
-			colorInputElement
-		)
 		listContainer.appendChild(listItem)
 	})
 	removeAddColorIfNotPrimary()
 }
+
 function removeAddColorIfNotPrimary() {
 	const listItems = document.querySelectorAll(".accessory-item")
 	listItems.forEach(listItem => {
@@ -320,50 +202,71 @@ addRemoveAccessoryBtns.forEach(btn => {
 		handleAddRemoveAccessoryButtonClick(accessory, addRemoveBtn)
 	})
 })
-function handleAddRemoveAccessoryButtonClick(accessory, addRemoveBtn) {
-	const orderData = getOrder(chosenCar.id)
+function handleAddRemoveAccessoryButtonClick(accessoryId, addRemoveBtn) {
 	const chosenAccessoriesList = document.getElementById(
 		"chosen-accessories-list"
 	)
+	const orderData = getOrder(chosenCar.id)
 
 	if (addRemoveBtn.getAttribute("add") !== null) {
 		// Add accessory to chosenAccessoriesList
-		const nameElement = listItem.querySelector(".accessory-name")
-		const priceElement = listItem.querySelector(".accessory-price")
+		const chosenAccessoryItem = createChosenAccessoryListItem(accessoryId)
 
-		nameElement.textContent = accessory.name
-		priceElement.textContent = accessory.price
-
-		chosenAccessoriesList.appendChild(listItem)
+		chosenAccessoriesList.appendChild(chosenAccessoryItem)
 
 		// Add accessory to chosen accessories array in orderData
-		orderData.chosenAccessories.push(accessory)
+		orderData.chosenAccessories.push(accessoryId)
 
 		// Update total price
-		document.getElementById("total-price-value").textContent =
-			calculateTotalPrice(chosenCar.price, orderData.chosenAccessories)
+		updateTotalPrice()
 
 		addRemoveBtn.removeAttribute("add")
 		addRemoveBtn.setAttribute("remove", "")
-	} else if (addRemoveBtn.getAttribute("remove") !== null) {
+	} else {
 		// Remove accessory from chosenAccessoriesList
-		const chosenAccessoryItem = document.querySelector(
-			`[data-accessory-id="${accessory.id}"]`
+		const accessoryItem = document.querySelector(
+			`[data-accessory-id="${accessoryId}"]`
 		)
-		chosenAccessoriesList.removeChild(chosenAccessoryItem)
+		chosenAccessoriesList.removeChild(accessoryItem)
 
 		// Remove accessory from chosen accessories array in orderData
 		orderData.chosenAccessories = orderData.chosenAccessories.filter(
-			a => a.id !== accessory.id
+			a => a !== accessoryId
 		)
 
 		// Update total price
-		document.getElementById("total-price-value").textContent =
-			calculateTotalPrice(chosenCar.price, orderData.chosenAccessories)
+		updateTotalPrice()
 
 		addRemoveBtn.removeAttribute("remove")
 		addRemoveBtn.setAttribute("add", "")
 	}
+}
+
+function createChosenAccessoryListItem(accessoryId) {
+	const listItem = document.importNode(
+		document.getElementById("accessory-li-template").content,
+		true
+	)
+
+	const nameElement = listItem.querySelector(".accessory-name")
+	const priceElement = listItem.querySelector(".accessory-price")
+
+	const accessory = getAccessory(accessoryId)
+
+	nameElement.textContent = accessory.name
+	priceElement.textContent = accessory.price
+
+	listItem.dataset.accessoryId = accessoryId
+
+	return listItem
+}
+
+function updateTotalPrice() {
+	document.getElementById("total-price-value").textContent =
+		calculateTotalPrice(
+			chosenCar.price,
+			getOrder(chosenCar.id).chosenAccessories
+		)
 }
 
 function calculateTotalPrice(carPrice, accessories) {
@@ -397,7 +300,7 @@ pickupDate.min = minDate.toISOString().split("T")[0]
 pickupDate.value = minDate.toISOString().split("T")[0]
 
 //////////////////////////////////////
-////// Obiekt user i order //////////
+////// user & order object ///////////
 //////////////////////////////////////
 
 function updateOrCreateOrder(car) {
@@ -532,7 +435,8 @@ function clearOrder(carId) {
 /////////////////////////////////////////////////////////////////
 // Set a listen on the input event to check validation on the fly
 /////////////////////////////////////////////////////////////////
-const nameRegex = /^[a-zA-Z]+ [a-zA-Z]+$/
+const nameRegex = /^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+ [a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/
+
 if (fullName) {
 	fullName.addEventListener("input", () => {
 		try {
@@ -558,104 +462,108 @@ if (fullName) {
 ////////////////////////////////
 // confirmation button click ///
 ///////////////////////////////
-formConfirmButton.addEventListener("click", handleFormConfirmButtonClick)
+const confirmButton = document.getElementById("form-confirm-btn")
+confirmButton.addEventListener("click", confirmOrder)
 
-function handleFormConfirmButtonClick() {
+function confirmOrder() {
 	if (!validateForm()) {
 		alert("Fill in all required fields, please!")
 		return
 	}
 
+	hideAvailableCars()
+	hideCarOrder()
+	showPurchaseSummary()
+}
+
+function hideAvailableCars() {
 	availableCarsSection.hidden = true
+}
+
+function hideCarOrder() {
 	carOrderSection.hidden = true
+}
+
+function showPurchaseSummary() {
 	purchaseSummarySection.hidden = false
+}
+
+function handleFormSubmit() {
+	if (!validateForm()) {
+		return
+	}
+
+	hideAvailableCars()
+	hideCarOrder()
+	showPurchaseSummary()
 
 	clearLocalStorage()
-	alert("Thakns for your order!")
 }
 
 function validateForm() {
-	if (
-		!fullName.value ||
-		!pickupDate.value ||
-		!pickupPlace.value ||
-		!paymentMethod.value
-	) {
-		return false
-	}
+	const { value: fullNameValue } = fullName
+	const { value: pickupDateValue } = pickupDate
+	const { value: pickupPlaceValue } = pickupPlace
+	const { value: paymentMethodValue } = paymentMethod
 
-	return true
+	return Boolean(
+		fullNameValue && pickupDateValue && pickupPlaceValue && paymentMethodValue
+	)
 }
 
 function clearLocalStorage() {
 	localStorage.clear()
 }
 
-////////////////////////////////
-////  welcome popup code  //////
-////////////////////////////////
-
-const welcomePopup = document.getElementById("welcome-popup")
-const closePopupBtn = document.getElementById("close-popup-btn")
-
-closePopupBtn.addEventListener("click", hidePopupWithOverlay)
-function showPopupWithOverlay() {
-	welcomePopup.style.display = "block"
-}
-
-function hidePopupWithOverlay() {
-	welcomePopup.style.display = "none"
-}
-
 //////////////////////////////////////////////
 ///////// welcome popup & countdown //////////
 //////////////////////////////////////////////
-// welcome popup countdown
-function updateCountdown(time) {
-	const countdownElement = document.getElementById("countdown")
-	countdownElement.textContent = time
-}
-function startCountdown(minutes) {
-	let remainingSeconds = minutes * 60
-	updateCountdown(formatTime(remainingSeconds))
 
-	const countdownInterval = setInterval(() => {
-		remainingSeconds--
-
-		if (remainingSeconds <= 0) {
-			clearInterval(countdownInterval)
-			hidePopupWithOverlay()
-		} else {
-			updateCountdown(formatTime(remainingSeconds))
-		}
-	}, 1000)
-}
-function formatTime(seconds) {
-	const minutes = Math.floor(seconds / 60) // count the number of minutes
-	const remainingSeconds = seconds % 60 // count the number of seconds
-
-	// format the time to "mm:ss"
-	const formattedMinutes = String(minutes).padStart(2, "0") // leading zero
-	const formattedSeconds = String(remainingSeconds).padStart(2, "0") // leading zero
-
-	return `${formattedMinutes}:${formattedSeconds}`
-}
-
-// show welcome popup and start countdown
 document.addEventListener("DOMContentLoaded", () => {
-	showPopupWithOverlay()
-	startCountdown(9) // start countdown for 9 minutes
+	const welcomePopup = document.getElementById("welcome-popup")
+	const closePopupBtn = document.getElementById("close-popup-btn")
+	const timer = document.getElementById("countdown")
+
+	let timeRemaining = 1.5 * 60 // tim
+	let interval // variable to store setInterval()
+
+	function updateTimer() {
+		const minutes = Math.floor(timeRemaining / 60)
+		const secondsLeft = timeRemaining % 60
+		timer.textContent = `${minutes.toString().padStart(2, "0")}:${secondsLeft
+			.toString()
+			.padStart(2, "0")}`
+	}
+
+	function startTimer() {
+		interval = setInterval(() => {
+			timeRemaining--
+			updateTimer()
+			if (timeRemaining <= 0) {
+				clearInterval(interval)
+				welcomePopup.style.display = "none"
+			}
+		}, 1000)
+	}
+
+	welcomePopup.style.display = "block"
+	startTimer()
+
+	closePopupBtn.addEventListener("click", () => {
+		welcomePopup.style.display = "none"
+		clearInterval(interval)
+	})
 })
 
-/////////////////////////////////////////////////////////
-/////// get current year for copy and other using ///////
-/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+//// get current year for copy text and other using ////
+////////////////////////////////////////////////////////
 const currentYear = new Date().getFullYear()
 document.getElementById("current-year").textContent = currentYear
 
-////////////////////////////////////////////////
-//// event listener for the page load event ////
-////////////////////////////////////////////////
+////////////////////////////////////////////////////
+////// event listener for the page load event //////
+////////////////////////////////////////////////////
 window.addEventListener("load", () => {
 	try {
 		initApp() // Uruchomienie funkcji initApp() po załadowaniu strony
