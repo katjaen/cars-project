@@ -289,3 +289,17 @@
 		);
 	}
 }
+
+@keyframes slideLeft {
+	0% {
+		opacity: 1;
+		transform: translateX(0);
+		100% {
+			opacity: 0;
+			transform: translateX(-100%);
+		}
+	}
+}
+.slide-animation {
+	animation: slideLeft 3s ease-in-out infinite;
+}

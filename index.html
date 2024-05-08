@@ -23,7 +23,8 @@
         <div id="overlay">
             <div id="popup" class="popup content-width-container">
                 <button id="close-popup-btn" class="ti close"
-                    aria-label="Close welcome popup or watch the video and wait for 9 minutes for it to be closed"></button>
+                    aria-label="Close welcome popup or watch the video and wait for 9 minutes for it to be closed">
+                </button>
                 <p class="medium">This application was created solely for educational purposes* as part of a final
                     assignment in
                     JavaScript programming in the field of Front-End Programmer with Angular postgraduate studies at WSB
@@ -76,14 +77,12 @@
         <template id="car-card__btns-template">
             <button class="car-card__btn btn--white" data-car-id="" aria-label="Want to have it?">Want to have it?
             </button>
-            <button class="phone-btn feedback btn--white" data-car-id="" data-feedback="+48000000000"
+            <button class="phone-btn feedback btn--white" data-car-id="" data-feedback="+48 000 000 000"
                 aria-label="Click here to call us"><span class="ti ti-mobile">
                 </span><a href="tel:+48000000000">Call for more info</a>
             </button>
         </template>
 
-        <template id="add-color-input-template">
-        </template>
         <template id="accessory-li-template">
             <li class="accessory-item" data-accessory-id="accessory-{id}">
                 <span class="accessory-name name"></span> |
@@ -182,9 +181,9 @@
                     <fieldset id="order-summary-field" aria-label="Order summary list">
                         <legend class="medium">Order summary:</legend>
                         <div id="order-summary-list-container" class="form-row">
-                            <p id="chosen-car" class="brand-model">
+                            <p id="chosen-car" class="medium">
                                 <span class="brand"></span>
-                                <span class="model"></span> |
+                                <span class="model"></span>:
                                 <span class="price"></span>
                             </p>
                             <ul id="chosen-accessories-list" aria-live="polite">
@@ -238,6 +237,7 @@
     </footer>
     <script defer src="./scripts/carsData.js" type="module"></script>
     <script defer src="./scripts/main.js" type="module"></script>
+    <!-- <script defer src="./scripts/temporary.js" type="module"></script>
 </body>
 
 </html>
