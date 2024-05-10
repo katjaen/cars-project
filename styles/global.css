@@ -195,8 +195,9 @@ p {
 }
 
 .text-content-width {
-	max-width: 600px;
+	max-width: 720px;
 	margin: auto;
+	padding: 0 var(--space-m);
 }
 .c-hr {
 	border: 0.5px solid var(--accent);
@@ -206,6 +207,10 @@ p {
 .display-none {
 	display: none;
 }
+.parent-clickable {
+	cursor: pointer;
+}
+
 /*//////////////////////////////////*/
 /*//////// buttons styling /////////*/
 /*//////////////////////////////////*/
@@ -228,6 +233,12 @@ button:focus {
 	color: var(--links);
 	background-color: var(--white);
 	margin-top: var(--space-xs);
+}
+.btn--transparent {
+	color: var(--links);
+	background-color: var(--transparent);
+	margin-top: var(--space-xs);
+	padding-left: 0;
 }
 .car-card__btn {
 	margin-top: var(--space-s);
@@ -257,6 +268,7 @@ button:focus {
 	clip-path: polygon(50% 75%, 0 0, 100% 0);
 	width: var(--space-m);
 	height: var(--space-m);
+	z-index: 999;
 }
 
 .feedback:hover::after {
@@ -270,7 +282,7 @@ button:focus {
 	padding: var(--space-xs) var(--space-m);
 	border-radius: var(--space-m);
 	white-space: nowrap;
-	z-index: 10;
+	z-index: 999;
 }
 
 /*//////////////////////////////////*/
@@ -292,7 +304,7 @@ button:focus {
 	left: 50%;
 	max-height: 100px;
 	transform: scale(70%) translateX(-75%);
-	z-index: 100;
+	z-index: 300;
 }
 .cars-header__line {
 	margin: 25px auto;
@@ -370,6 +382,11 @@ footer {
 	flex-direction: column;
 	row-gap: var(--space-xs);
 }
+.form-row,
+form li,
+form p {
+	margin-top: var(--space-xs);
+}
 
 ul {
 	list-style-type: none;
@@ -400,6 +417,16 @@ input[valid] {
 input[invalid] {
 	color: var(--invalid);
 }
+/* input:invalid:focus {
+	border: 0.5px solid var(--invalid-color);
+	margin: -3px;
+}
+
+input:valid:focus {
+	border: 0.5px solid var(--valid-color);
+	margin: -3px;
+} */
+
 .form-required-mark {
 	color: var(--invalid);
 }

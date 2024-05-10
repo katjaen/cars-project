@@ -1,8 +1,9 @@
 export const pickupPlaces = [
-	{ name: "Carland", id: "carland" },
 	{ name: "Heaven", id: "heaven" },
 	{ name: "Hell", id: "hell" },
 ]
+export const defaulPickupPlacetOption = pickupPlaces[0]
+
 export const sharedAccesories = [
 	{ name: "Individual Color", id: "addColor", inputColor: "", price: 8000 },
 	{ name: "Jet button", id: "jetBtn", price: 500 },
@@ -48,7 +49,11 @@ export const cars = [
 			"./assets/DeLorean DMC-12/10300_alt4.webp",
 			"./assets/DeLorean DMC-12/10300_alt6.webp",
 		],
-		accessoriesByModel: [],
+		accessoriesByModel: [
+			{ name: "Hovercraft function", price: 2000, id: "hovercraft" },
+			{ name: "Lunar rover", price: 8000, id: "lunarRover" },
+			{ name: "Frowning face", price: 1000, id: "frown" },
+		],
 	},
 	{
 		id: 3,
@@ -80,7 +85,11 @@ export const cars = [
 			"./assets/Porche 911/10295_alt14.webp",
 			"./assets/Porche 911/10295.webp",
 		],
-		accessoriesByModel: [],
+		accessoriesByModel: [
+			{ name: "autonomous driving", price: 20000, id: "autonomous" },
+			{ name: "Pink windows", price: 5000, id: "pinkWindows" },
+			{ name: "Cauliflower", price: 50, id: "cauliflower" },
+		],
 	},
 	{
 		id: 5,
@@ -100,8 +109,7 @@ export const cars = [
 		accessoriesByModel: [],
 	},
 ]
-
-// Funkcja przetwarzająca pojedynczy obiekt reprezentujący samochód
+// Processing car data
 export function createCarData(car) {
 	const {
 		id,
@@ -115,8 +123,8 @@ export function createCarData(car) {
 		images,
 	} = car
 
-	const brandColor = brandColors[brand] || "defaultColor" // Dodaj domyślny kolor, jeśli marka nie ma przypisanego koloru
-	const availableAccessories = Array.isArray(accessoriesByModel)
+	const brandColor = brandColors[brand] || "defaultColor" // add
+	const accessories = Array.isArray(accessoriesByModel)
 		? [...sharedAccesories, ...accessoriesByModel]
 		: []
 
@@ -130,13 +138,13 @@ export function createCarData(car) {
 		price,
 		images,
 		brandColor,
-		availableAccessories,
+		accessories,
 	}
 }
 
-// Przetworzenie danych o wszystkich samochodach za pomocą funkcji createCarData
+// Processing data about all cars using the createCarData function
 export const processedCarsData = cars.map(createCarData)
 
-export function cleanId(text) {
-	return text.replace(/\s/g, "-")
+export function cleanId(id) {
+	return encodeURIComponent(id)
 }

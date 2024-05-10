@@ -1,38 +1,43 @@
 import { cleanId, processedCarsData, pickupPlaces } from "./carsData.js"
 
-const availableCarsSection = document.getElementById("available-cars-sc")
+// const carCardsSection = document.getElementById("available-cars-sc")
 const carOrderSection = document.getElementById("car-order-sc")
 const purchaseSummarySection = document.getElementById("purchase-summary-sc")
 
 const CardsContainer = document.getElementById("cars-container-grid")
 const carCardTemplate = document.getElementById("car-card-template")
 
-const fullName = document.getElementById("full-name")
-const pickupDate = document.getElementById("pickup-date")
-const pickupPlace = document.getElementById("pickup-place")
+const fullNameInput = document.getElementById("full-name")
+const pickupDateInput = document.getElementById("pickup-date")
+const pickupPlaceInput = document.getElementById("pickup-place")
 
 const orderSummaryList = document.getElementById("chosen-accessories-list")
 
-let chosenCar = null
-
 function initApp() {
 	renderCarCardsAll()
-	const chosenCard = document.querySelector(".car-card[chosen]")
-	if (chosenCard) {
-		const carId = chosenCard.getAttribute("data-car-id")
-		updateTotalPrice(carId)
-	}
+	// const chosenCard = document.querySelector(".car-card[chosen]")
+	// if (chosenCard) {
+	// 	const carId = chosenCard.dataset.carId
+	// 	updateTotalPrice(carId)
+	// }
 }
 
 // back home button click
-const backHomeButton = document.getElementById("back-home-btn")
-backHomeButton.addEventListener("click", resetOrderAndSummarySections)
+const backHomeButtons = document.querySelectorAll(
+	".back-home-btn, .logo-clickable"
+)
+
+backHomeButtons.forEach(button => {
+	button.addEventListener("click", resetOrderAndSummarySections)
+})
+
 function resetOrderAndSummarySections() {
-	carOrderSection.hidden = true
-	purchaseSummarySection.hidden = true
-	showAllCarCards()
+	hideCarOrder()
+	hidePurchaseSummary()
+	showCarCards()
 }
-function showAllCarCards() {
+
+function showCarCards() {
 	document.querySelectorAll(".car-card").forEach(card => {
 		card.removeAttribute("hidden")
 		card.removeAttribute("chosen")
@@ -48,7 +53,10 @@ function renderCarDetails(
 	yearElement,
 	enginePowerElement,
 	mileageElement,
-	carPriceElement
+	carPriceElement,
+	accessoryNameElements,
+	accessoryPriceElements,
+	accessoryColorInputs
 ) {
 	if (brandModel) {
 		brandModel.textContent = `${carData.brand} ${carData.model}`
@@ -62,6 +70,7 @@ function renderCarDetails(
 	if (image) {
 		image.src = carData.images[0]
 		image.alt = `${carData.brand} ${carData.model} ${carData.year}`
+		image.dataset.carId = carData.id
 	}
 	if (yearElement) {
 		yearElement.textContent = carData.year
@@ -75,15 +84,23 @@ function renderCarDetails(
 	if (carPriceElement) {
 		carPriceElement.textContent = carData.price
 	}
-}
-
-function renderAccessory(accessory, nameAccElement, priceAccElement) {
-	if (nameAccElement) {
-		nameAccElement.textContent = accessory.name
+	if (accessoryNameElements && accessoryPriceElements && carData.accessories) {
+		carData.accessories.forEach((accessory, index) => {
+			accessoryNameElements[index].textContent = accessory.name
+			accessoryPriceElements[index].textContent = accessory.price
+		})
 	}
-	if (priceAccElement) {
-		priceAccElement.textContent = accessory.price
+	if (accessoryColorInputs && carData.accessories) {
+		carData.accessories.forEach((accessory, index) => {
+			if (accessory.color) {
+				accessoryColorInputs[index].value = accessory.color
+				// you can add additional logic to update accessory color
+			}
+		})
 	}
+	// TODO: Add additional logic to update accessory color
+	// if (accessoryColorInputs[index]) {
+	// })
 }
 
 function renderCarCard(card, carData) {
@@ -173,46 +190,43 @@ function renderCarCardButtons(card, carData) {
 	container.appendChild(buttons)
 }
 
-function handleCarCardButtonClick(car) {
-	const chosenCard = document.getElementById(cleanId(`${car.model}-${car.id}`))
-	console.log("chosenCard", chosenCard)
-	if (!chosenCard) {
-		console.error(
-			`Could not find car card with id ${cleanId(`${car.model}-${car.id}`)}`
-		)
-		throw new Error(
-			`Could not find car card with id ${cleanId(`${car.model}-${car.id}`)}`
-		)
-	}
+/////////////////
+////////////////
 
+function handleCarCardButtonClick(chosenCar) {
+	const chosenCard = document.getElementById(
+		cleanId(`${chosenCar.model}-${chosenCar.id}`)
+	)
 	chosenCard.setAttribute("chosen", "")
-	car.chosen = true
-
+	chosenCard.removeAttribute("hidden")
 	document.querySelectorAll(".car-card").forEach(card => {
 		if (card !== chosenCard) {
 			card.setAttribute("hidden", "")
 		}
 	})
-
-	console.log("updating or creating order")
-	updateOrCreateOrder(car)
-	changeCarImage(car)
-	renderOrderSection(car)
-	renderAccessoryList(car.availableAccessories, car.id)
-	console.log("updating user data")
-	updateUserData(car.id)
+	updateOrCreateOrder(chosenCar)
+	changeCarImage(chosenCar)
+	renderOrderSection(chosenCar)
+	renderAccessoryList(chosenCar.accessories, chosenCar.id)
+	updateUserData(chosenCar.id)
 }
 
 function changeCarImage(chosenCar) {
-	const imageElement = document.querySelector(
-		`#${cleanId(`${chosenCar.model}-${chosenCar.id}`)} .car-card__image`
-	)
-	let currentImageIndex = 0
+	const carId = chosenCar.id
+	const imageElements = document.querySelectorAll(`[data-car-id="${carId}"]`)
 
-	setInterval(() => {
-		currentImageIndex = (currentImageIndex + 1) % chosenCar.images.length
-		imageElement.src = chosenCar.images[currentImageIndex]
-	}, 4000)
+	if (!imageElements || imageElements.length === 0) {
+		console.error(`No image found for car with id ${carId}`)
+		return
+	}
+
+	imageElements.forEach(imageElement => {
+		let currentImageIndex = 0
+		setInterval(() => {
+			currentImageIndex = (currentImageIndex + 1) % chosenCar.images.length
+			imageElement.src = chosenCar.images[currentImageIndex]
+		}, 4000)
+	})
 }
 
 function renderOrderSection(chosenCar) {
@@ -234,14 +248,14 @@ function renderOrderSection(chosenCar) {
 		modelElement.textContent = chosenCar.model
 	})
 
-	carPriceElement.textContent = chosenCar.price
-	// updateTotalPrice(chosenCar, accessories)
+	carPriceElement.textContent = chosenCar.price.toFixed(2)
+	totalPriceElement.textContent = chosenCar.price.toFixed(2)
 }
 // accessory list render
-function renderAccessoryList(availableAccessories, carId) {
+function renderAccessoryList(accessories, carId) {
 	const listContainer = document.getElementById("accessories-list")
 	listContainer.innerHTML = ""
-	availableAccessories.forEach(accessory => {
+	accessories.forEach(accessory => {
 		const accessoryLiTemplate = document.getElementById("accessory-li-template")
 		const listItem = accessoryLiTemplate.content.cloneNode(true)
 		const nameAccElement = listItem.querySelector(".accessory-name")
@@ -272,12 +286,16 @@ function handleColorInput(event) {
 	if (!car) return
 
 	const chosenAccessoryId = accessoryItem.dataset.accessoryId
-	const chosenAccessory = car.availableAccessories.find(
+	const chosenAccessory = car.accessories.find(
 		accessory => accessory.id === chosenAccessoryId
 	)
 	if (!chosenAccessory) return
 
 	// TODO: update the input value in the UI for the chosen accessory
+	// update summary li color to show the selected color by adding a class="chosen-color"
+	// repair the summary list because it renders wrong after backbutton or reloading page
+	// probably sth with localstorage that it needs to be fixed
+	// or mayby it's a bug in the summary list or accessory list
 	// -------------------------------------------------------------
 	const inputColorElement = event.target
 	const accessoryListItem = inputColorElement.closest(".accessory-item")
@@ -315,68 +333,63 @@ function updateSummaryList(order) {
 	})
 }
 
-function convertPricesToNumbers() {
-	const priceElements = document.querySelectorAll(".price")
-	priceElements.forEach(element => {
-		const parsedPrice = parseFloat(element.textContent.trim())
-		if (!isNaN(parsedPrice)) {
-			element.textContent = parsedPrice
-		}
-	})
-}
-
 function updateTotalPrice(carId) {
-	const carPriceElement = document.querySelector("#chosen-car .price")
-	const totalPriceElement = document.querySelector(
-		"#total-price .total-price-value"
+	const carPrice = parseFloat(
+		document.querySelector(`#chosen-car .price`).textContent.trim()
 	)
-
-	const carPrice = parseFloat(carPriceElement.textContent.trim())
-	const orderData = getOrder(carId)
-	const totalAccessoriesPrice = orderData.accessories.reduce(
-		(total, accessory) => {
-			const accessoryPrice = parseFloat(accessory.price)
-			return total + accessoryPrice
-		},
+	const order = getOrder(carId)
+	const totalAccessoriesPrice = order.accessories.reduce(
+		(total, accessory) => total + parseFloat(accessory.price),
 		0
 	)
 
 	const totalPrice = carPrice + totalAccessoriesPrice
-	totalPriceElement.textContent = totalPrice.toFixed(2)
+	document.querySelector(`#total-price .total-price-value`).textContent =
+		totalPrice.toFixed(2)
 }
+
 function handleAccessoryButtonClick(event) {
 	const listItem = event.target.closest(".accessory-item")
 	if (!listItem) return
 
 	const carId = listItem.dataset.carId
-	const order = getOrder(carId)
+	let order = getOrder(carId) // Pobierz zamówienie z local storage
+
 	const accessoryId = listItem.dataset.accessoryId
+	const accessoryName = listItem.querySelector(".accessory-name").textContent
+	const accessoryPrice = parseFloat(
+		listItem
+			.querySelector(".accessory-price")
+			.textContent.replace(/[^\d.]/g, "")
+	)
 
-	if (event.target.hasAttribute("add")) {
-		const accessoryName = listItem.querySelector(".accessory-name").textContent
-		const accessoryPrice = parseFloat(
-			listItem
-				.querySelector(".accessory-price")
-				.textContent.replace(/[^\d.]/g, "")
-		)
+	const addButton = event.target
 
+	if (addButton.hasAttribute("add")) {
+		if (!order) {
+			order = { accessories: [] }
+		}
 		order.accessories.push({
 			id: accessoryId,
 			name: accessoryName,
 			price: accessoryPrice,
 		})
-		localStorage.setItem(`order-${carId}`, JSON.stringify(order))
+		localStorage.setItem(`order-${carId}`, JSON.stringify(order)) // Zapisz zamówienie do local storage
 
-		event.target.removeAttribute("add")
-		event.target.setAttribute("remove", "")
+		addButton.removeAttribute("add")
+		addButton.setAttribute("remove", "")
 		listItem.classList.add("selected-acc")
-		updateSummaryList(order)
-		updateTotalPrice(carId)
-	} else if (event.target.hasAttribute("remove")) {
-		order.accessories = order.accessories.filter(
-			accessory => accessory.id !== accessoryId
-		)
-		localStorage.setItem(`order-${carId}`, JSON.stringify(order))
+
+		updateSummaryList(order) // Aktualizuj listę akcesoriów w podsumowaniu
+		updateTotalPrice(carId) // Aktualizuj całkowitą cenę
+	} else if (addButton.hasAttribute("remove")) {
+		// Usuń akcesorium z zamówienia
+		if (order) {
+			order.accessories = order.accessories.filter(
+				accessory => accessory.id !== accessoryId
+			)
+			localStorage.setItem(`order-${carId}`, JSON.stringify(order)) // Zapisz zamówienie do local storage
+		}
 
 		const summaryItem = orderSummaryList.querySelector(
 			`li[data-accessory-id="${accessoryId}"]`
@@ -385,10 +398,11 @@ function handleAccessoryButtonClick(event) {
 			orderSummaryList.removeChild(summaryItem)
 		}
 
-		updateTotalPrice(carId)
-		event.target.removeAttribute("remove")
-		event.target.setAttribute("add", "")
+		addButton.removeAttribute("remove")
+		addButton.setAttribute("add", "")
 		listItem.classList.remove("selected-acc")
+
+		updateTotalPrice(carId) // Aktualizuj całkowitą cenę
 	}
 }
 
@@ -396,27 +410,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	const accessoriesList = document.getElementById("accessories-list")
 	accessoriesList.addEventListener("click", handleAccessoryButtonClick)
 })
-
-function handleAccessoryListClick(event) {
-	const clickedElement = event.target
-	if (clickedElement.nodeName === "BUTTON") {
-		if (clickedElement.hasAttribute("add")) {
-			handleAddAccessoryClick(event)
-		} else if (clickedElement.hasAttribute("remove")) {
-			handleRemoveAccessoryClick(event)
-		}
-	}
-}
-
-function calculateTotalPrice(carPrice, accessories) {
-	let totalPrice = carPrice
-
-	accessories.forEach(accessory => {
-		totalPrice += accessory.price
-	})
-
-	return totalPrice
-}
 
 //////////////////////////////////////
 ////// user & order object ///////////
@@ -500,65 +493,31 @@ function getChosenCar() {
 	return chosenCar
 }
 
-function updateUserData(user, carId) {
-	let userData = localStorage.getItem("user")
-
-	if (!userData) {
-		userData = {
-			fullName: user.fullName,
-			pickupPlace: user.pickupPlace,
-			pickupDate: user.pickupDate,
-			paymentMethod: user.paymentMethod,
-			carIds: [carId],
-		}
-	} else {
-		userData = JSON.parse(userData)
-		if (!userData.carIds.includes(carId)) {
-			userData.carIds.push(carId)
-		}
+function updateOrderSummaryFromLocalStorage(carId) {
+	const order = getOrder(carId)
+	if (order) {
+		updateSummaryList(order) // Aktualizuj listę akcesoriów
+		updateTotalPrice(carId) // Aktualizuj całkowitą cenę
 	}
-	localStorage.setItem("user", JSON.stringify(userData))
-}
-
-function getUserDetails() {
-	const user = {
-		fullName: fullName.value,
-		pickupPlace: pickupPlace.value,
-		pickupDate: pickupDate.value,
-		paymentMethod: paymentMethod.value,
-	}
-	return user
-}
-
-function clearUserDetails() {
-	localStorage.removeItem("user")
-}
-
-function saveOrder(order, carId) {
-	localStorage.setItem(`order-${carId}`, JSON.stringify(order))
-}
-
-function clearOrder(carId) {
-	localStorage.removeItem(`order-${carId}`)
 }
 
 // Set a listen on the input event to check validation on the fly
 const nameRegex = /^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+ [a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/
 
-if (fullName) {
-	fullName.addEventListener("input", () => {
+if (fullNameInput) {
+	fullNameInput.addEventListener("input", () => {
 		try {
-			const nameValue = fullName.value
+			const nameValue = fullNameInput.value
 			if (nameValue === null || nameValue === undefined) {
 				throw new Error("Null or undefined name value")
 			}
 
 			if (nameRegex.test(nameValue)) {
-				fullName.removeAttribute("invalid")
-				fullName.setAttribute("valid", "")
+				fullNameInput.removeAttribute("invalid")
+				fullNameInput.setAttribute("valid", "")
 			} else {
-				fullName.removeAttribute("valid")
-				fullName.setAttribute("invalid", "")
+				fullNameInput.removeAttribute("valid")
+				fullNameInput.setAttribute("invalid", "")
 			}
 		} catch (error) {
 			console.error(error)
@@ -567,23 +526,65 @@ if (fullName) {
 } else {
 	console.error("Could not find #full-name-input")
 }
-// confirmation button click handler
-const confirmButton = document.getElementById("form-confirm-btn")
-confirmButton.addEventListener("click", confirmOrder)
 
-function confirmOrder() {
-	if (!validateForm()) {
-		alert("Fill in all required fields, please!")
-		return
-	}
+const confirmOrderButton = document.getElementById("form-confirm-btn")
 
-	hideAvailableCars()
-	hideCarOrder()
-	showPurchaseSummary()
+if (confirmOrderButton) {
+	confirmOrderButton.addEventListener("click", function (event) {
+		event.preventDefault()
+		handleFormSubmit()
+	})
+} else {
+	console.error("Nie można znaleźć #form-confirm-btn")
 }
 
-function hideAvailableCars() {
-	availableCarsSection.hidden = true
+function handleFormSubmit() {
+	console.groupCollapsed("handleFormSubmit()")
+	console.log("handleFormSubmit()")
+
+	const name = fullNameInput.value.trim()
+	console.log("name:", name)
+
+	const pickup = pickupPlaceInput.value.trim()
+	console.log("pickup:", pickup)
+
+	const paymentMethod = document.querySelector(
+		'input[name="paymentMethod"]:checked'
+	)
+	console.log("paymentMethod:", paymentMethod)
+
+	console.groupEnd()
+
+	if (!name) {
+		focusInput(fullNameInput)
+		console.log("Please enter your full name.")
+		return alert("Please enter your full name.")
+	}
+
+	const match = name.match(/\d+/)
+	console.log("match:", match)
+	if (match && match.length) {
+		console.log(`Removing order with id: ${match[0]}`)
+		localStorage.removeItem(`order-${match[0]}`)
+	}
+
+	if (!pickup) {
+		console.log("Please select a pickup place.")
+		return alert("Please select a pickup place.")
+	}
+
+	if (!paymentMethod) {
+		console.log("Please select a payment method.")
+		return alert("Please select a payment method.")
+	}
+
+	hideCarOrder()
+	showPurchaseSummary()
+	// updatePurchaseSummaryHtml()
+}
+
+function focusInput(input) {
+	input.focus()
 }
 
 function hideCarOrder() {
@@ -593,41 +594,54 @@ function hideCarOrder() {
 function showPurchaseSummary() {
 	purchaseSummarySection.hidden = false
 }
+function hidePurchaseSummary() {
+	purchaseSummarySection.hidden = true
+}
 
-const form = document.getElementById("car-order-form")
-form.addEventListener("submit", event => {
-	event.preventDefault()
+function updateUserData(user, carId) {
+	const userDataString = localStorage.getItem("user")
+	let userData = null
 
-	handleFormSubmit()
-	localStorage.clear()
-})
-
-function handleFormSubmit() {
-	if (!validateForm()) {
-		alert("Fill in all required fields, please!")
-		return
+	if (userDataString) {
+		userData = JSON.parse(userDataString)
+	} else {
+		userData = {
+			fullNameInput: user.fullNameInput,
+			pickupPlaceInput: user.pickupPlaceInput,
+			pickupDateInput: user.pickupDateInput,
+			paymentMethod: user.paymentMethod,
+			carIds: [carId],
+		}
 	}
 
-	hideAvailableCars()
-	hideCarOrder()
-	showPurchaseSummary()
+	if (!userData.carIds.includes(carId)) {
+		userData.carIds.push(carId)
+	}
 
-	clearLocalStorage()
+	localStorage.setItem("user", JSON.stringify(userData))
 }
 
-function validateForm() {
-	const { value: fullNameValue } = fullName
-	const { value: pickupDateValue } = pickupDate
-	const { value: pickupPlaceValue } = pickupPlace
-	const { value: paymentMethodValue } = paymentMethod
-
-	return Boolean(
-		fullNameValue && pickupDateValue && pickupPlaceValue && paymentMethodValue
+function getUserDetails() {
+	const selectedPaymentMethod = document.querySelector(
+		'input[name="paymentMethod"]:checked'
 	)
+
+	const paymentMethodValue = selectedPaymentMethod
+		? selectedPaymentMethod.value
+		: null
+
+	const user = {
+		fullNameInput: fullNameInput.value,
+		pickupPlaceInput: pickupPlaceInput.value,
+		pickupDateInput: pickupDateInput.value,
+		paymentMethod: paymentMethodValue,
+	}
+
+	return user
 }
 
-function clearLocalStorage() {
-	localStorage.clear()
+function saveOrder(order, carId) {
+	localStorage.setItem(`order-${carId}`, JSON.stringify(order))
 }
 
 // welcome popup & countdown
@@ -666,23 +680,16 @@ document.addEventListener("DOMContentLoaded", () => {
 		clearInterval(interval)
 	})
 })
-//////// rendering list of pickupPlaces in the form
-pickupPlaces.forEach(place => {
-	const option = document.createElement("option")
-	option.value = place.id
-	option.textContent = place.name
-	pickupPlace.appendChild(option)
-})
 
-////////// minimal date for pickupDate
+////////// minimal date for pickupDateInput
 const currentDate = new Date()
 const minDate = new Date(currentDate)
 minDate.setDate(currentDate.getDate() + 14)
 
-pickupDate.min = minDate.toISOString().split("T")[0]
-pickupDate.value = minDate.toISOString().split("T")[0]
+pickupDateInput.min = minDate.toISOString().split("T")[0]
+pickupDateInput.value = minDate.toISOString().split("T")[0]
 
-//// get current year for copy text and other using
+//// get current year for copy text and any other using
 const currentYear = new Date().getFullYear()
 document.getElementById("current-year").textContent = currentYear
 
@@ -693,4 +700,11 @@ window.addEventListener("load", () => {
 	} catch (error) {
 		console.error(error)
 	}
+	const pickupPlaceInputElement = document.getElementById("pickup-place")
+	pickupPlaces.forEach(place => {
+		const option = document.createElement("option")
+		option.value = place.id
+		option.textContent = place.name
+		pickupPlaceInputElement.appendChild(option)
+	})
 })

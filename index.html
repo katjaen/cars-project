@@ -14,7 +14,7 @@
 <body>
     <header class="cars-header">
         <div class="cars-header__nav-row"></div>
-        <figure class="cars-header__logo">
+        <figure class="cars-header__logo logo-clickable parent-clickable">
             <img src="./assets/cars-logo.svg" alt="Logo Cars" />
         </figure>
         <div class="cars-header__line"></div>
@@ -96,6 +96,7 @@
         </template>
 
         <section id="available-cars-sc" class="cars-sc">
+            <h1 class="text-content-width display-none">Available cars</h1>
             <div id="cars-container-grid" class="cars-container--grid content-width-container" aria-live="polite">
                 <!-- car cards rendered from car-card-template; --car-bg depends on the brand of the car -->
             </div>
@@ -106,11 +107,11 @@
                 <div id="title-container" class="text-content-width">
                     <h1 class="car-order__title ">Order <span class="model"></span>
                     </h1>
-                    <p class="second-font larger">and go on holiday in your new <span class="brand"></span>!
+                    <p class="second-font larger">and go to Heaven with your new <span class="brand"></span>!
                     </p>
 
                     <div class="back-home-btn">
-                        <button id="back-home-btn" class="btn--white" aria-label="Or go home and think it all again">
+                        <button class="back-home-btn btn--transparent" aria-label="Or go home and think it all again">
                             <span id="ti-arrow-left" class="ti ti-arrow-left"></span> Or go home and think it all
                         </button>
                     </div>
@@ -136,6 +137,7 @@
                         <div class="form-row">
                             <label id="pickup-place-label" for="pickup-place">Car pickup location:</label>
                             <select id="pickup-place" required aria-label="Select the car pickup location">
+                                <option value="" disabled selected class="placeholder">Select</option>
                                 <!-- added from pickupPlaces -->
                             </select>
                         </div>
@@ -162,14 +164,14 @@
                         <div class="form-row">
                             <ul>
                                 <li>
-                                    <label for="miser-payment" aria-label="Jelly bears payment method">Jelly
+                                    <label for="miser-payment" aria-label="Jelly bears payment method">Sour Jelly
                                         bears</label>
                                     <input id="miser-payment" required type="radio" name="paymentMethod"
                                         value="miser" />
                                 </li>
                                 <li>
-                                    <label for="generous-payment" aria-label="Leasing payment method">Lot of jelly
-                                        bears</label>
+                                    <label for="generous-payment" aria-label="Leasing payment method">Sweet jelly
+                                        bears and tip</label>
                                     <input id="generous-payment" required type="radio" name="paymentMethod"
                                         value="generous" />
                                 </li>
@@ -200,11 +202,34 @@
         </section>
 
         <section id="purchase-summary-sc" class="cars-sc" hidden>
-            <div class="purchase-summary-container" aria-live="polite">
-                <p> In <!-- number of days resulting from user input pickupDate rendered--> days your new
-                    <span class="brand"></span> <span class="model"></span> will be available for pickup in
-                    <!-- user input pickupPlace rendered-->.
-                </p>
+            <div class="text-content-width">
+                <div class="back-home-btn">
+                    <button class="back-home-btn btn--transparent" aria-label="Go back to all available cars">
+                        <span id="ti-arrow-left" class="ti ti-arrow-left"></span> Go back to all available cars
+                    </button>
+                </div>
+                <div class="purchase-summary-container" aria-live="polite">
+                    <h1 class="car-order__title medium">Thank you for your order!</h1>
+                    <p class="second-font larger">Congratulation <span class="full-name-text"> </span></p>
+                    <p> In <span class="days-to-pickup" </span> days your new
+                            <span class="brand"></span> <span class="model"></span> <span class="year"></span> will be
+                            available for pickup in <span class="pickup-place"></span>
+                    </p>
+                </div>
+                <div id="miser-message" hidden>
+                    <p>
+                        We're very sorry - you chose a payment that proves your stinginess and misers are not allowed to
+                        enter Heaven. Next time you can choose better payment to show your generosity but now you have
+                        to go to Hell to collect your purchase there or just go to Hell.
+                    </p>
+                </div>
+                <div id="generous-message" hidden>
+                    <p>
+                        Congratulations! You have chosen a payment that demonstrates your generosity! You can uniquely
+                        pick up your order in Heaven and stay there as long as you wish. If you are not interested, you
+                        can of course go to Hell and pick up your purchase there.
+                    </p>
+                </div>
             </div>
         </section>
 
@@ -230,7 +255,7 @@
             <p class="copy-text">Copyright © <span id="current-year"></span> Cars</p>
         </div>
         <div class="footer-row-bottom">
-            <figure class="cars-footer__logo">
+            <figure class="cars-footer__logo logo-clickable parent-clickable">
                 <img src="./assets/cars-logo.svg" alt="Cars logo"></img>
             </figure>
         </div>
