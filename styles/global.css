@@ -16,7 +16,7 @@
 	--pale: #dad5d5;
 	--white: #ffffff;
 	--black: #000000;
-	--individualcar: #fec7c7;
+	--chosen-input-color: #fec7c7;
 	--valid: #6c9d6c;
 	--invalid: #e66d6d;
 
@@ -28,6 +28,8 @@
 	--bg2: #e5eded;
 	--bg3: #e2e7e0;
 	--bg4: #f1ebcd;
+	--bg5: #f9e4e4;
+	--bg6: #eae6f0;
 
 	/* picker colors for individual color cars */
 	/* --picker-1: #fec7c7;
@@ -192,6 +194,7 @@ p {
 	width: 100%;
 	max-width: 1000px;
 	padding: var(--space-xs) var(--space-m);
+	margin: auto;
 }
 
 .text-content-width {
@@ -201,16 +204,17 @@ p {
 }
 .c-hr {
 	border: 0.5px solid var(--accent);
-	margin: var(--space-s) 0;
+	margin-top: var(--space-s);
 }
-
+.relative {
+	position: relative;
+}
 .display-none {
 	display: none;
 }
 .parent-clickable {
 	cursor: pointer;
 }
-
 /*//////////////////////////////////*/
 /*//////// buttons styling /////////*/
 /*//////////////////////////////////*/
@@ -246,11 +250,11 @@ button:focus {
 .add-remove-btn {
 	margin-left: var(--space-xs);
 }
-.add-remove-btn[add]:before {
+.add-remove-btn:before {
 	content: "\e61a";
 }
 
-.add-remove-btn[remove]:before {
+.add-remove-btn[selected]:before {
 	content: "\e622";
 }
 #close-popup-btn {
@@ -263,28 +267,25 @@ button:focus {
 	content: "";
 	position: absolute;
 	bottom: 60%;
-	left: 10%;
+	left: 73%;
 	background-color: var(--base);
 	clip-path: polygon(50% 75%, 0 0, 100% 0);
 	width: var(--space-m);
 	height: var(--space-m);
-	z-index: 999;
 }
 
 .feedback:hover::after {
 	content: attr(data-feedback); /* Treść z atrybutu data-feedback */
 	position: absolute;
 	bottom: calc(40% + var(--space-m));
-	left: -10%;
+	left: 80%;
 	transform: translateX(-50%);
 	background-color: var(--base);
 	color: var(--white);
 	padding: var(--space-xs) var(--space-m);
 	border-radius: var(--space-m);
 	white-space: nowrap;
-	z-index: 999;
 }
-
 /*//////////////////////////////////*/
 /*///////// header styling /////////*/
 /*//////////////////////////////////*/
@@ -366,7 +367,6 @@ footer {
 	align-items: center;
 	gap: var(--space-s);
 }
-
 .cars-sc[hidden] {
 	display: none;
 }
@@ -374,6 +374,7 @@ footer {
 	margin-left: auto;
 	margin-right: auto;
 }
+
 /*//////////////////////////////*/
 /*//////// form styling ////////*/
 /*//////////////////////////////*/
@@ -414,6 +415,7 @@ select:focus {
 input[valid] {
 	border-bottom: 1px solid var(--valid);
 }
+.invalid-message,
 input[invalid] {
 	color: var(--invalid);
 }
@@ -440,21 +442,64 @@ fieldset div:not(:last-child) {
 }
 fieldset {
 	border: 0;
-	padding: var(--space-s) 0;
 }
 fieldset div {
 	padding-left: var(--space-m);
 }
-
+legend {
+	padding-top: var(--space-s);
+	padding-bottom: var(--space-xs);
+}
 input[type="color"] {
-	value: var(--individualcar);
+	value: var(--chosencarcolor);
 }
 
-.chosen-color {
+#color-picker[data-accessory-id="addColor"] {
+	/* --input-value: var(--chosencarcolor); */
+	width: var(--space-x);
+	height: var(--space-x);
+	border-radius: 50%;
+	border: none;
+	outline: none;
+	padding: 0;
+	background: var(--input-value);
+	position: relative;
+	top: 4px;
+}
+
+#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch-wrapper {
+	display: block;
+	width: var(--space-x);
+	height: var(--space-x);
+	padding: 0;
+	border-radius: 50%;
+	background-color: transparent;
+	position: relative;
+	top: 4px;
+}
+
+#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background-color: transparent;
+	border: none;
+	pointer-events: none;
+}
+
+#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch::after {
+	content: "";
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background-color: var(--input-value);
+}
+.accessory-color-if-chosen {
 	position: relative;
 }
 
-.chosen-color::before {
+.accessory-color-if-chosen::before {
 	content: "";
 	position: absolute;
 	left: -40px;
@@ -462,7 +507,7 @@ input[type="color"] {
 	transform: translateY(-50%);
 	width: var(--space-x);
 	height: var(--space-x);
-	background-color: var(--individualcar);
+	background-color: var(--chosen-input-color);
 	border-radius: 50%;
 }
 
@@ -488,3 +533,10 @@ input[type="color"] {
 .ti.close:before {
 	content: "\e646";
 }
+.ti-angle-down:before {
+	content: "\e64b";
+}
+
+/*///////////////////////////////*/
+/*///// color input styling /////*/
+/*///////////////////////////////*/

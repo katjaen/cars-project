@@ -65,7 +65,7 @@
                         <li class="year"></li>
                         <li class="engine-power"></li>
                         <li class="mileage"></li>
-                        <li class=" price larger medium"></li>
+                        <li class=" car-price  price-currency larger medium"></li>
                     </ul>
                     <div class="car-card__btns-container">
                         <!-- for all car cards and for chosen car card -->
@@ -85,17 +85,33 @@
 
         <template id="accessory-li-template">
             <li class="accessory-item" data-accessory-id="accessory-{id}">
+                <span class="accessory-name name"></span> | +
+                <span class="accessory-price price-currency medium" data-accessory-id="accessory-{id}"></span>
+                <button type="button" class="add-remove-btn ti" data-accessory-id="accessory-{id}"></button>
+            </li>
+        </template>
+        <template id="accessory-li-template-add-color">
+            <li class="accessory-item" data-accessory-id="accessory-{id}">
                 <span class="accessory-name name"></span> |
                 <span class="add-color-input" data-accessory-id="addColor">
                     <label for="color-picker">Pick your color: </label>
-                    <input id="color-picker" type="color" value="#fec7c7" data-accessory-id="addColor"> |
+                    <input id="color-picker" type="color" value="#000000" data-accessory-id="addColor"> |
                 </span> +
-                <span class="accessory-price price medium" data-accessory-id="accessory-{id}"></span>
-                <button class="add-remove-btn ti" data-accessory-id="accessory-{id}" add></button>
+                <span class="accessory-price price-currency medium" data-accessory-id="accessory-{id}"></span>
+                <button type="button" class="add-remove-btn ti" data-accessory-id="accessory-{id}"></button>
             </li>
         </template>
-
-        <section id="available-cars-sc" class="cars-sc">
+        <aside class="sorting content-width-container">
+            <button id="sort-by-brand-btn" class="sorting__btn btn--transparent">
+                <span>Sort by brand</span>
+                <span class="ti ti-angle-down"></span>
+            </button>
+            <div id="brand-options-wrapper" hidden>
+                <ul id="brand-options-list"></ul>
+                <!-- Lista brandów zostanie zaciągnięta dynamicznie za pomocą JavaScript -->
+            </div>
+        </aside>
+        <section id="available-cars-sc" class="cars-sc relative">
             <h1 class="text-content-width display-none">Available cars</h1>
             <div id="cars-container-grid" class="cars-container--grid content-width-container" aria-live="polite">
                 <!-- car cards rendered from car-card-template; --car-bg depends on the brand of the car -->
@@ -125,8 +141,7 @@
                         <div class="form-row">
                             <label id="fullname-label" for="full-name">Your name: </label>
                             <input id="full-name" class="full-name feedback" type="text"
-                                data-feedback="Required format: First name Surname separated by space"
-                                pattern="^[a-zA-Z]+ [a-zA-Z]+$"
+                                pattern="^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+ [a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$" minlength="4"
                                 title="Required format: First name Surname separated by space"
                                 placeholder="e.g. Hatty Ford-Lego" required aria-label="Enter your full name">
                         </div>
@@ -136,7 +151,8 @@
                                 class="form-required-mark">*</span></legend>
                         <div class="form-row">
                             <label id="pickup-place-label" for="pickup-place">Car pickup location:</label>
-                            <select id="pickup-place" required aria-label="Select the car pickup location">
+                            <select id="pickup-place" required aria-label="Select the car pickup location"
+                                title="Please select the car pickup location">
                                 <option value="" disabled selected class="placeholder">Select</option>
                                 <!-- added from pickupPlaces -->
                             </select>
@@ -166,37 +182,43 @@
                                 <li>
                                     <label for="miser-payment" aria-label="Jelly bears payment method">Sour Jelly
                                         bears</label>
-                                    <input id="miser-payment" required type="radio" name="paymentMethod"
-                                        value="miser" />
+                                    <input id="miser-payment" required type="radio" name="paymentMethod" value="miser"
+                                        title="Please select your payment method" />
                                 </li>
                                 <li>
                                     <label for="generous-payment" aria-label="Leasing payment method">Sweet jelly
                                         bears and tip</label>
                                     <input id="generous-payment" required type="radio" name="paymentMethod"
-                                        value="generous" />
+                                        value="generous" title="Please select your payment method" />
                                 </li>
                             </ul>
-                            <div class="invalid-message" hidden aria-live="assertive"></div>
                         </div>
                     </fieldset>
                     <hr class="c-hr">
                     <fieldset id="order-summary-field" aria-label="Order summary list">
                         <legend class="medium">Order summary:</legend>
                         <div id="order-summary-list-container" class="form-row">
-                            <p id="chosen-car" class="medium">
+                            <p id="chosen-car">
                                 <span class="brand"></span>
                                 <span class="model"></span>:
-                                <span class="price"></span>
+                                <span class="car-price price-currency medium"></span>
                             </p>
                             <ul id="chosen-accessories-list" aria-live="polite">
                                 <!-- list rendered based on user inputs -->
                             </ul>
-                            <p id="total-price" class="total-price price">Total price:
-                                <span class="total-price-value"></span>
+                            <p id="total-price" class="total-price">Total price:
+                                <span class="total-price-value price-currency medium"></span>
                             </p>
                         </div>
                     </fieldset>
                     <button id="form-confirm-btn" type="submit" aria-label="Confirm order">Confirm order</button>
+                    <p id="fullname-invalid" class="invalid-message small" hidden>
+                        Please enter your full name. Name and Surname should be separated by space.
+                    </p>
+                    <p id="pickup-invalid" class="invalid-message small" hidden>Please select your pick-up location and
+                        make
+                        sure your pick-up time is suitable.</p>
+                    <p id="payment-invalid" class="invalid-message small" hidden>Please select a payment method.</p>
                 </form>
             </div>
         </section>
@@ -210,10 +232,13 @@
                 </div>
                 <div class="purchase-summary-container" aria-live="polite">
                     <h1 class="car-order__title medium">Thank you for your order!</h1>
-                    <p class="second-font larger">Congratulation <span class="full-name-text"> </span></p>
-                    <p> In <span class="days-to-pickup" </span> days your new
-                            <span class="brand"></span> <span class="model"></span> <span class="year"></span> will be
-                            available for pickup in <span class="pickup-place"></span>
+                    <p class="second-font larger">Congratulation <span class="full-name-text"> </span>!</p>
+                    <hr class="c-hr">
+                    <p id="summary-message"> In <span class="days-to-pickup medium"></span> days your new
+                        <span class="brand medium"></span> <span class="model medium"></span>, <span
+                            class="year"></span>
+                        will be
+                        available for pickup in <span class="pickup-place medium"></span>
                     </p>
                 </div>
                 <div id="miser-message" hidden>
@@ -261,8 +286,8 @@
         </div>
     </footer>
     <script defer src="./scripts/carsData.js" type="module"></script>
-    <script defer src="./scripts/main.js" type="module"></script>
-    <!-- <script defer src="./scripts/temporary.js" type="module"></script>
+    <script defer src="./scripts/carsApp.js" type="module"></script>
+    <!-- <script defer src="./scripts/orderStorage.js" type="module"></script> -->
 </body>
 
 </html>

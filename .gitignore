@@ -131,3 +131,4 @@ dist
 
 .vscode
 scripts/constants.js
+.DS_Store
