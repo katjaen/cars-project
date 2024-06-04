@@ -7,6 +7,7 @@
     <title>Cars</title>
     <meta name="description"
         content="This is a car application created solely for educational purposes as part of a final assignment in JavaScript programming in the field of Front-End Programmer with Angular postgraduate studies at WSB Merito University in Wroclaw.">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="stylesheet" href="./styles/global.css" />
     <link rel="stylesheet" href="./styles/mainview.css" />
     <script defer src="./scripts/carsData.js" type="module"></script>
@@ -28,9 +29,8 @@
                     aria-label="Close welcome popup or watch the video and wait for 9 minutes for it to be closed">
                 </button>
                 <p class="medium">This application was created solely for educational purposes* as part of a final
-                    assignment in
-                    JavaScript programming in the field of Front-End Programmer with Angular postgraduate studies at WSB
-                    Merito University in Wrocław.</p>
+                    assignment in JavaScript programming in the field of Front-End Programmer with Angular postgraduate
+                    studies at WSB Merito University in Wrocław.</p>
                 <p class="medium" style="color: red;">* Any resemblance to reality is purely coincidental and no one was
                     harmed during
                     the work.</p>
@@ -142,9 +142,8 @@
                                 class="form-required-mark">*</span></legend>
                         <div class="form-row">
                             <label id="fullname-label" for="full-name">Your name: </label>
-                            <input id="full-name" class="full-name feedback" type="text"
-                                pattern="^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+ [a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$" minlength="4"
-                                title="Required format: First name Surname separated by space"
+                            <input id="full-name" class="full-name feedback" type="text" pattern="^[^\d\s]+ [^\d\s]+$"
+                                minlength="5" title="Required format: First name Surname separated by space"
                                 placeholder="e.g. Hatty Ford-Lego" required aria-label="Enter your full name">
                         </div>
                     </fieldset>
@@ -182,14 +181,16 @@
                         <div class="form-row">
                             <ul>
                                 <li>
-                                    <label for="miser-payment" aria-label="Jelly bears payment method">Sour Jelly
-                                        bears</label>
+                                    <label for="miser-payment" aria-label="Jelly bears payment method">
+                                        Sour Jelly bears
+                                    </label>
                                     <input id="miser-payment" required type="radio" name="paymentMethod" value="miser"
                                         title="Please select your payment method" />
                                 </li>
                                 <li>
-                                    <label for="generous-payment" aria-label="Leasing payment method">Sweet jelly
-                                        bears and tip</label>
+                                    <label for="generous-payment" aria-label="Leasing payment method">
+                                        Sweet jelly bears and tip
+                                    </label>
                                     <input id="generous-payment" required type="radio" name="paymentMethod"
                                         value="generous" title="Please select your payment method" />
                                 </li>
@@ -240,22 +241,21 @@
                         <span class="brand medium"></span> <span class="model medium"></span>, <span
                             class="year"></span>
                         will be
-                        available for pickup in <span class="pickup-place medium"></span>
+                        available for pickup in <span class="pickup-place medium"></span>.
                     </p>
                 </div>
                 <div id="miser-message" hidden>
                     <p>
-                        We are very sorry - you chose Heaven as your pick-up location and a payment that proves your
-                        stinginess. The misers are not allowed in Heaven. Next time you can choose better and be
-                        generous, but for now you have to go to Hell to pick up your purchase. If this solution does not
-                        suit you - just go to Hell.
+                        Unfortunately - you chose Heaven as the pickup location and the miser's type of payment. Misers
+                        are not allowed into Heaven (it's beyond our control), so we suggest you pick up your car in
+                        Hell. If this solution doesn't suit you - just go to hell.
                     </p>
                 </div>
                 <div id="generous-message" hidden>
                     <p>
-                        Congratulations! You have chosen a payment that demonstrates your generosity! You can uniquely
-                        pick up your order in Heaven and stay there as long as you wish. If you are not interested, you
-                        can of course go to Hell and pick up your purchase there.
+                        Fortunately - you have chosen the type-generous payment method! Generous people go to Heaven, so
+                        as a reward you can pick up your order in Heaven and stay there as long as you wish, at our
+                        expense. If you're not interested, you can still go to Hell, of course.
                     </p>
                 </div>
             </div>

@@ -1,13 +1,12 @@
 import { cleanId, processedCarsData, pickupPlaces } from "./carsData.js";
 
-const defaultPickerColor = getComputedStyle(
+const defaultColor = getComputedStyle(
 	document.documentElement
 ).getPropertyValue("--individual-color");
 
 const carCardsSection = document.getElementById("available-cars-sc");
 const carOrderSection = document.getElementById("car-order-sc");
 const purchaseSummarySection = document.getElementById("purchase-summary-sc");
-
 const chosenAccessoriesList = document.getElementById(
 	"chosen-accessories-list"
 );
@@ -16,8 +15,7 @@ const sortingAside = document.querySelector("aside.sorting");
 const currentYearElement = document.getElementById("current-year");
 currentYearElement.textContent = new Date().getFullYear();
 
-// order constants
-const carOrderForm = document.getElementById("car-order-form");
+const orderForm = document.getElementById("car-order-form");
 
 const fullNameInput = document.getElementById("full-name");
 const pickupDateInput = document.getElementById("pickup-date");
@@ -31,9 +29,7 @@ const fullNameErrorMessage = document.getElementById("fullname-invalid");
 const pickupPlaceErrorMessage = document.getElementById("pickup-invalid");
 const paymentErrorMessage = document.getElementById("payment-invalid");
 
-const fullNameRegex =
-	/^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+ [a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/;
-
+const fullNameRegex = /^[\p{L}]+(?:['-][\p{L}]+)* [\p{L}]+(?:['-][\p{L}]+)*$/u;
 const minimumDateForPickup = new Date();
 minimumDateForPickup.setDate(minimumDateForPickup.getDate() + 14);
 /**
@@ -42,8 +38,6 @@ minimumDateForPickup.setDate(minimumDateForPickup.getDate() + 14);
  * @return {void} No return value
  */
 function initApp() {
-	console.log("Local storage before initApp:", localStorage);
-
 	initializeWelcomePopup();
 	appendCarCardsToContainer();
 	attachGlobalEventListeners();
@@ -51,7 +45,7 @@ function initApp() {
 	restoreOrdersFromStorage();
 
 	console.log(
-		"Previous orders in local storage:",
+		"Orders in local storage after app initialization:",
 		JSON.parse(localStorage.getItem("orders")) || []
 	);
 }
@@ -123,21 +117,21 @@ function renderAndAppendButtonsToCarCard(card, car) {
 	buttonsContainer.appendChild(buttons);
 }
 function appendCarCardsToContainer(chosenCar, cars = processedCarsData) {
-	const CardsContainer = document.getElementById("cars-container-grid");
+	const cardsContainer = document.getElementById("cars-container-grid");
 	const carCardTemplate = document.getElementById("car-card-template");
 
-	CardsContainer.innerHTML = "";
+	cardsContainer.innerHTML = "";
 
 	if (chosenCar) {
 		const renderedCard = carCardTemplate.content.cloneNode(true);
 		renderCarCard(renderedCard, chosenCar);
 		renderedCard.querySelector(".car-card").setAttribute("chosen", "");
-		CardsContainer.appendChild(renderedCard);
+		cardsContainer.appendChild(renderedCard);
 	} else {
 		cars.forEach(car => {
 			const renderedCard = carCardTemplate.content.cloneNode(true);
 			renderCarCard(renderedCard, car);
-			CardsContainer.appendChild(renderedCard);
+			cardsContainer.appendChild(renderedCard);
 		});
 	}
 }
@@ -152,15 +146,13 @@ function handleCarCardButtonClick(car) {
 	chosenAccessoriesList.innerHTML = "";
 	appendAccessoryListItems(chosenCar);
 	restoreOrderStateFromStorage(chosenCar);
-	// prepareChosenAccessoriesListItem(chosenCar);
+	addPickupPlacesToPickupPlaceInput();
 	attachFormEventListeners();
 	attachValidationListeners();
 	toggleElementAttribute(sortingAside, "hidden", true);
 	toggleElementAttribute(carOrderSection, "hidden", false);
-	// updateTotalPrice(chosenCar.id);
-
 	console.log(
-		"Local storage orders after updating:",
+		"Local storage orders updated after car card click:",
 		JSON.parse(localStorage.getItem("orders"))
 	);
 }
@@ -265,12 +257,12 @@ let chosenColor;
 function setColorPickerEventHandler(colorPickerInput) {
 	colorPickerInput.addEventListener("input", ({ target }) => {
 		const color = target.value;
+		console.log("chosenColor:", color);
 		document.documentElement.style.setProperty("--individual-color", color);
 		colorPickerInput.dataset.color = color;
 		chosenColor = color;
 	});
 }
-
 function addChosenAccessoryListElement(accessoryId, carId) {
 	const listItem = document.createElement("li");
 	listItem.dataset.accessoryId = accessoryId;
@@ -295,7 +287,6 @@ function addChosenAccessoryListElement(accessoryId, carId) {
 
 	chosenAccessoriesList.appendChild(listItem);
 }
-
 function removeChosenAccessoryListElement(accessoryId, carId) {
 	const chosenAccessoriesListItem = chosenAccessoriesList.querySelector(
 		`li[data-accessory-id="${accessoryId}"][data-car-id="${carId}"]`
@@ -304,7 +295,6 @@ function removeChosenAccessoryListElement(accessoryId, carId) {
 		chosenAccessoriesList.removeChild(chosenAccessoriesListItem);
 	}
 }
-
 function handleAccessoryButtonClick(carId, accessoryId) {
 	const orders = JSON.parse(localStorage.getItem("orders")) || {};
 	const orderId = `order-${carId}`;
@@ -339,72 +329,45 @@ function handleAccessoryButtonClick(carId, accessoryId) {
 	updateTotalPrice(carId);
 
 	console.log(
-		"Local storage orders with selected accessories after updating:",
+		"Local storage orders updated after accessory button click:",
 		JSON.parse(localStorage.getItem("orders"))
 	);
 }
-function updateTotalPrice(carId) {
-	const orders = JSON.parse(localStorage.getItem("orders")) || {};
-	const orderId = `order-${carId}`;
-	const car = orders[orderId];
 
-	if (!car) {
-		return;
-	}
-
-	const totalPrice =
-		car.price +
-		car.accessories.reduce(
-			(total, accessory) => total + parseFloat(accessory.price),
-			0
-		);
-
-	const totalPriceElement = document.querySelector(
-		`#total-price .total-price-value`
-	);
-	totalPriceElement.textContent = totalPrice.toFixed(2);
-}
 function updatePurchaseSummary(purchaseSummary) {
-	updateElement(".full-name-text", purchaseSummary.customerName);
+	const name = purchaseSummary.customerName.split(" ");
+	const fullNameText = document.querySelector(".full-name-text");
+	fullNameText.textContent = name
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+		.join(" ");
+
 	updateElement(".days-to-pickup", purchaseSummary.daysToPickup);
 	updateElement(".brand", purchaseSummary.car.brand);
 	updateElement(".model", purchaseSummary.car.model);
 	updateElement(".year", purchaseSummary.car.year);
 	updateElement(".pickup-place", purchaseSummary.pickupPlace);
-}
 
-function removeAccessoryFromOrder(order, accessoryId) {
-	order.accessories = order.accessories.filter(
-		accessory => accessory.id !== accessoryId
-	);
+	showPurchaseExtraMessage(purchaseSummary);
 }
-function addAccessoryToOrder(order, accessory) {
-	const newAccessory = {
-		id: accessory.id,
-		name: accessory.name,
-		price: accessory.price,
-	};
-	if (accessory.id === "addColor" && chosenColor) {
-		newAccessory.color = chosenColor;
+function showPurchaseExtraMessage(purchaseSummary) {
+	const miserMessage = document.getElementById("miser-message");
+	const generousMessage = document.getElementById("generous-message");
+
+	miserMessage.hidden = true;
+	generousMessage.hidden = true;
+
+	const isMiserInHeaven =
+		purchaseSummary.paymentMethod === "Sour Jelly bears" &&
+		purchaseSummary.pickupPlace === "Heaven";
+	const isGenerousInHell =
+		purchaseSummary.paymentMethod === "Sweet jelly bears and tip" &&
+		purchaseSummary.pickupPlace === "Hell";
+
+	if (isMiserInHeaven) {
+		miserMessage.hidden = false;
+	} else if (isGenerousInHell) {
+		generousMessage.hidden = false;
 	}
-	order.accessories.push(newAccessory);
-}
-// functions for local storage
-function addOrderToStorage(chosenCar) {
-	if (!chosenCar) return;
-
-	const orders = JSON.parse(localStorage.getItem("orders")) || {};
-	const orderId = `order-${chosenCar.id}`;
-	const order = orders[orderId] || {
-		id: chosenCar.id,
-		brand: chosenCar.brand,
-		model: chosenCar.model,
-		price: chosenCar.price,
-		accessories: [],
-	};
-
-	orders[orderId] = order;
-	localStorage.setItem("orders", JSON.stringify(orders));
 }
 
 // functions for sorting car cards by brand
@@ -471,7 +434,7 @@ if (sortButton && optionsWrapper && optionsList) {
 	setupBrandSorting(sortButton, optionsWrapper, optionsList);
 }
 
-// functions for form
+// functions for form order
 function handleFormSubmission() {
 	event.preventDefault();
 
@@ -486,12 +449,16 @@ function handleFormSubmission() {
 
 	if (isFormValid && chosenCar) {
 		const daysToPickup = calculateDaysToPickup(pickupDate);
+		const selectedPaymentMethodLabel = selectedPaymentMethod
+			? selectedPaymentMethod.labels[0].textContent.trim()
+			: "";
 		const purchaseSummary = {
 			car: chosenCar,
 			customerName,
 			pickupDate,
 			pickupPlace: selectedPickupPlace,
 			daysToPickup,
+			paymentMethod: selectedPaymentMethodLabel,
 		};
 
 		updatePurchaseSummary(purchaseSummary);
@@ -515,30 +482,50 @@ function attachFormEventListeners() {
 	});
 }
 function attachValidationListeners() {
+	attachFullNameValidation();
+	setMinimumAndCurrentDateForPickupDateInput();
+	preventEmptyInputForPickupDateInput();
+	hideOrShowPaymentErrorMessage();
+	hideOrShowPickupPlaceErrorMessage();
+}
+function attachFullNameValidation() {
 	fullNameInput.addEventListener("input", function () {
 		const isFullNameValid = fullNameRegex.test(fullNameInput.value.trim());
 		fullNameInput.toggleAttribute("valid", isFullNameValid);
 		fullNameInput.toggleAttribute("invalid", !isFullNameValid);
 		fullNameErrorMessage.hidden = isFullNameValid;
 	});
-	pickupDateInput.min = minimumDateForPickup.toISOString().split("T")[0];
-	pickupDateInput.value = minimumDateForPickup.toISOString().split("T")[0];
+}
+function addPickupPlacesToPickupPlaceInput() {
+	const existingOptions = pickupPlaceInput.querySelectorAll("option");
+	const optionValues = Array.from(existingOptions).map(option => option.value);
+	pickupPlaces.forEach(place => {
+		if (!optionValues.includes(place.name)) {
+			const option = document.createElement("option");
+			option.value = place.name;
+			option.textContent = place.name;
+			pickupPlaceInput.appendChild(option);
+		}
+	});
+}
+function preventEmptyInputForPickupDateInput() {
 	pickupDateInput.addEventListener("input", function () {
 		if (pickupDateInput.value === "") {
 			return;
 		}
 	});
-	pickupPlaces.forEach(place => {
-		const option = document.createElement("option");
-		option.value = place.name;
-		option.textContent = place.name;
-		pickupPlaceInput.appendChild(option);
-	});
+}
+function setMinimumAndCurrentDateForPickupDateInput() {
+	pickupDateInput.min = minimumDateForPickup.toISOString().split("T")[0];
+	pickupDateInput.value = minimumDateForPickup.toISOString().split("T")[0];
+}
+function hideOrShowPickupPlaceErrorMessage() {
 	pickupPlaceInput.addEventListener("change", function () {
 		const hasPickupPlace = pickupPlaceInput.value !== "";
 		pickupPlaceErrorMessage.hidden = hasPickupPlace;
 	});
-
+}
+function hideOrShowPaymentErrorMessage() {
 	paymentMethodInputs.forEach(input => {
 		input.addEventListener("change", function () {
 			const hasSelectedPaymentMethod = document.querySelector(
@@ -548,7 +535,6 @@ function attachValidationListeners() {
 		});
 	});
 }
-
 function validateForm() {
 	let isFormValid = true;
 
@@ -578,14 +564,10 @@ function validateForm() {
 	return isFormValid;
 }
 
-//////////////////////////////////
-///////// local storage //////////
-//////////////////////////////////
+// functions for local storage
 const clearLocalStorage = () => localStorage.clear();
 // User
 function addOrUpdateUserDataToStorage() {
-	console.log("Updating or creating user data in storage");
-
 	const userDataKey = `user_data`;
 
 	const userData = {
@@ -596,14 +578,9 @@ function addOrUpdateUserDataToStorage() {
 			?.value,
 	};
 
-	console.log("User data:", userData);
+	console.log("Local storage user data created or updated:", userData);
 
 	localStorage.setItem(userDataKey, JSON.stringify(userData));
-
-	console.log(
-		"User data stored in local storage:",
-		localStorage.getItem(userDataKey)
-	);
 }
 function restoreUserDataFromStorage() {
 	const userData = JSON.parse(localStorage.getItem("user_data"));
@@ -619,7 +596,23 @@ function restoreUserDataFromStorage() {
 		}
 	}
 }
-// Orders
+// Orders in local storage
+function addOrderToStorage(chosenCar) {
+	if (!chosenCar) return;
+
+	const orders = JSON.parse(localStorage.getItem("orders")) || {};
+	const orderId = `order-${chosenCar.id}`;
+	const order = orders[orderId] || {
+		id: chosenCar.id,
+		brand: chosenCar.brand,
+		model: chosenCar.model,
+		price: chosenCar.price,
+		accessories: [],
+	};
+
+	orders[orderId] = order;
+	localStorage.setItem("orders", JSON.stringify(orders));
+}
 function restoreOrdersFromStorage() {
 	return JSON.parse(localStorage.getItem("orders")) || [];
 }
@@ -646,25 +639,42 @@ function restoreOrderStateFromStorage() {
 		}
 	});
 }
-function calculateDaysToPickup(pickupDate) {
-	const currentDate = new Date();
-	const timeDifference = new Date(pickupDate) - currentDate;
-	const millisecondsInDay = 1000 * 60 * 60 * 24;
-	const daysToPickup = Math.ceil(timeDifference / millisecondsInDay);
-	return daysToPickup;
+function addAccessoryToOrder(order, accessory) {
+	const newAccessory = {
+		id: accessory.id,
+		name: accessory.name,
+		price: accessory.price,
+	};
+	if (accessory.id === "addColor" && chosenColor) {
+		newAccessory.color = chosenColor;
+	}
+	order.accessories.push(newAccessory);
 }
-function carouselCarImages(car) {
-	const carImages = document.querySelectorAll(`[data-car-id="${car.id}"]`);
-	if (carImages.length === 0) return;
-
-	let currentIndex = 0;
-	const intervalId = setInterval(() => {
-		currentIndex = (currentIndex + 1) % car.images.length;
-		carImages.forEach(image => (image.src = car.images[currentIndex]));
-	}, 4000);
-
-	return () => clearInterval(intervalId);
+function removeAccessoryFromOrder(order, accessoryId) {
+	order.accessories = order.accessories.filter(
+		accessory => accessory.id !== accessoryId
+	);
 }
+function updateTotalPrice(carId) {
+	const orders = JSON.parse(localStorage.getItem("orders")) || {};
+	const orderId = `order-${carId}`;
+	const car = orders[orderId];
+
+	if (!car) {
+		return;
+	}
+
+	const totalPrice =
+		car.price +
+		car.accessories.reduce(
+			(total, accessory) => total + parseFloat(accessory.price),
+			0
+		);
+
+	updateElement("#total-price .total-price-value", totalPrice.toFixed(2));
+}
+
+// welcome popup
 function initializeWelcomePopup() {
 	const welcomePopup = document.getElementById("welcome-popup");
 	const closeButton = document.getElementById("close-popup-btn");
@@ -701,10 +711,32 @@ function initializeWelcomePopup() {
 		clearInterval(interval);
 	});
 }
+
+// helper functions
+function calculateDaysToPickup(pickupDate) {
+	const currentDate = new Date();
+	const timeDifference = new Date(pickupDate) - currentDate;
+	const millisecondsInDay = 1000 * 60 * 60 * 24;
+	const daysToPickup = Math.ceil(timeDifference / millisecondsInDay);
+	return daysToPickup;
+}
+function carouselCarImages(car) {
+	const carImages = document.querySelectorAll(`[data-car-id="${car.id}"]`);
+	if (carImages.length === 0) return;
+
+	let currentIndex = 0;
+	const intervalId = setInterval(() => {
+		currentIndex = (currentIndex + 1) % car.images.length;
+		carImages.forEach(image => (image.src = car.images[currentIndex]));
+	}, 4000);
+
+	return () => clearInterval(intervalId);
+}
 function updateElement(selector, value) {
 	const elements = document.querySelectorAll(selector);
 	elements.forEach(element => (element.textContent = value));
 }
+
 function toggleElementAttribute(element, attribute, value) {
 	if (value) {
 		element.setAttribute(attribute, "");
