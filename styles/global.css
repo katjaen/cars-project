@@ -16,9 +16,10 @@
 	--pale: #dad5d5;
 	--white: #ffffff;
 	--black: #000000;
-	--chosen-input-color: #fec7c7;
 	--valid: #6c9d6c;
 	--invalid: #e66d6d;
+
+	--individual-color: #fec7c7;
 
 	--transparent: #ffffff00;
 
@@ -450,32 +451,29 @@ legend {
 	padding-top: var(--space-s);
 	padding-bottom: var(--space-xs);
 }
-input[type="color"] {
-	value: var(--chosencarcolor);
-}
-
 #color-picker[data-accessory-id="addColor"] {
-	/* --input-value: var(--chosencarcolor); */
 	width: var(--space-x);
 	height: var(--space-x);
 	border-radius: 50%;
 	border: none;
 	outline: none;
 	padding: 0;
-	background: var(--input-value);
 	position: relative;
-	top: 4px;
+	margin-right: var(--space-xs);
+	vertical-align: middle;
+	background-color: transparent;
 }
 
 #color-picker[data-accessory-id="addColor"]::-webkit-color-swatch-wrapper {
-	display: block;
+	display: inline-block;
 	width: var(--space-x);
 	height: var(--space-x);
 	padding: 0;
 	border-radius: 50%;
 	background-color: transparent;
 	position: relative;
-	top: 4px;
+	box-shadow: 0 2px 4px 1px var(--pale);
+	border: 2.5px solid var(--white);
 }
 
 #color-picker[data-accessory-id="addColor"]::-webkit-color-swatch {
@@ -493,8 +491,8 @@ input[type="color"] {
 	width: 100%;
 	height: 100%;
 	border-radius: 50%;
-	background-color: var(--input-value);
 }
+
 .accessory-color-if-chosen {
 	position: relative;
 }
@@ -507,7 +505,7 @@ input[type="color"] {
 	transform: translateY(-50%);
 	width: var(--space-x);
 	height: var(--space-x);
-	background-color: var(--chosen-input-color);
+	background-color: var(--individual-color);
 	border-radius: 50%;
 }
 

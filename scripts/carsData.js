@@ -4,7 +4,12 @@ export const pickupPlaces = [
 ];
 
 const sharedAccessories = [
-	{ name: "Individual Color", id: "addColor", inputColor: "", price: 8000 },
+	{
+		name: "Individual Color",
+		id: "addColor",
+		color: "--individual-color",
+		price: 8000,
+	},
 	{ name: "Jet button", id: "jetBtn", price: 500 },
 	{ name: "Autodestruction button", id: "destrBtn", price: 1000 },
 ];
@@ -186,6 +191,13 @@ cars.forEach(car => {
 	}
 });
 
+/**
+ * Returns an array of processed car data. Each car object in the array includes additional properties:
+ * - brandColor: the color of the car brand, or the default color if the brand is not found.
+ * - accessories: an array of accessories that are shared among all cars, plus the car's specific accessories.
+ *
+ * @return {Array} An array of car objects with additional properties.
+ */
 export const processedCarsData = validCars.map(car => ({
 	...car,
 	brandColor: brandColors[car.brand] || brandColors.defaultColor,

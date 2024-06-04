@@ -9,6 +9,8 @@
         content="This is a car application created solely for educational purposes as part of a final assignment in JavaScript programming in the field of Front-End Programmer with Angular postgraduate studies at WSB Merito University in Wroclaw.">
     <link rel="stylesheet" href="./styles/global.css" />
     <link rel="stylesheet" href="./styles/mainview.css" />
+    <script defer src="./scripts/carsData.js" type="module"></script>
+    <script defer src="./scripts/carsApp.js" type="module"></script>
 </head>
 
 <body>
@@ -95,7 +97,7 @@
                 <span class="accessory-name name"></span> |
                 <span class="add-color-input" data-accessory-id="addColor">
                     <label for="color-picker">Pick your color: </label>
-                    <input id="color-picker" type="color" value="#000000" data-accessory-id="addColor"> |
+                    <input id="color-picker" class="color-picker-input" type="color" data-accessory-id="addColor"> |
                 </span> +
                 <span class="accessory-price price-currency medium" data-accessory-id="accessory-{id}"></span>
                 <button type="button" class="add-remove-btn ti" data-accessory-id="accessory-{id}"></button>
@@ -108,7 +110,7 @@
             </button>
             <div id="brand-options-wrapper" hidden>
                 <ul id="brand-options-list"></ul>
-                <!-- Lista brandów zostanie zaciągnięta dynamicznie za pomocą JavaScript -->
+                <!-- The list of brands will be dynamically fetched using js -->
             </div>
         </aside>
         <section id="available-cars-sc" class="cars-sc relative">
@@ -154,7 +156,7 @@
                             <select id="pickup-place" required aria-label="Select the car pickup location"
                                 title="Please select the car pickup location">
                                 <option value="" disabled selected class="placeholder">Select</option>
-                                <!-- added from pickupPlaces -->
+                                <!-- added from pickupPlaces by js -->
                             </select>
                         </div>
                         <div class="form-row">
@@ -169,7 +171,7 @@
                         <legend id="accessories" class="medium">Additional accessories:</legend>
                         <div class="form-row">
                             <ul id="accessories-list" aria-label="List of additional accessories">
-                                <!-- list rendered from availableAccessories of selected car and based on template id="accessory-li-template"-->
+                                <!-- list dynamically fetched using js-->
                             </ul>
                         </div>
                     </fieldset>
@@ -204,7 +206,7 @@
                                 <span class="car-price price-currency medium"></span>
                             </p>
                             <ul id="chosen-accessories-list" aria-live="polite">
-                                <!-- list rendered based on user inputs -->
+                                <!-- list dynamically fetched using js -->
                             </ul>
                             <p id="total-price" class="total-price">Total price:
                                 <span class="total-price-value price-currency medium"></span>
@@ -243,9 +245,10 @@
                 </div>
                 <div id="miser-message" hidden>
                     <p>
-                        We're very sorry - you chose a payment that proves your stinginess and misers are not allowed to
-                        enter Heaven. Next time you can choose better payment to show your generosity but now you have
-                        to go to Hell to collect your purchase there or just go to Hell.
+                        We are very sorry - you chose Heaven as your pick-up location and a payment that proves your
+                        stinginess. The misers are not allowed in Heaven. Next time you can choose better and be
+                        generous, but for now you have to go to Hell to pick up your purchase. If this solution does not
+                        suit you - just go to Hell.
                     </p>
                 </div>
                 <div id="generous-message" hidden>
@@ -285,9 +288,7 @@
             </figure>
         </div>
     </footer>
-    <script defer src="./scripts/carsData.js" type="module"></script>
-    <script defer src="./scripts/carsApp.js" type="module"></script>
-    <!-- <script defer src="./scripts/orderStorage.js" type="module"></script> -->
+
 </body>
 
 </html>

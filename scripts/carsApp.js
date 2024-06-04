@@ -1,12 +1,22 @@
 import { cleanId, processedCarsData, pickupPlaces } from "./carsData.js";
 
+const defaultPickerColor = getComputedStyle(
+	document.documentElement
+).getPropertyValue("--individual-color");
+
 const carCardsSection = document.getElementById("available-cars-sc");
 const carOrderSection = document.getElementById("car-order-sc");
 const purchaseSummarySection = document.getElementById("purchase-summary-sc");
 
-const orderSummaryList = document.getElementById("chosen-accessories-list");
+const chosenAccessoriesList = document.getElementById(
+	"chosen-accessories-list"
+);
 const sortingAside = document.querySelector("aside.sorting");
 
+const currentYearElement = document.getElementById("current-year");
+currentYearElement.textContent = new Date().getFullYear();
+
+// order constants
 const carOrderForm = document.getElementById("car-order-form");
 
 const fullNameInput = document.getElementById("full-name");
@@ -15,6 +25,7 @@ const pickupPlaceInput = document.getElementById("pickup-place");
 const paymentMethodInputs = document.querySelectorAll(
 	'input[name="paymentMethod"]'
 );
+const confirmOrderButton = document.getElementById("form-confirm-btn");
 
 const fullNameErrorMessage = document.getElementById("fullname-invalid");
 const pickupPlaceErrorMessage = document.getElementById("pickup-invalid");
@@ -25,12 +36,6 @@ const fullNameRegex =
 
 const minimumDateForPickup = new Date();
 minimumDateForPickup.setDate(minimumDateForPickup.getDate() + 14);
-
-const currentYearElement = document.getElementById("current-year");
-currentYearElement.textContent = new Date().getFullYear();
-
-const clearLocalStorage = () => localStorage.clear();
-
 /**
  * Initializes the application by rendering all car cards.
  *
@@ -38,102 +43,35 @@ const clearLocalStorage = () => localStorage.clear();
  */
 function initApp() {
 	console.log("Local storage before initApp:", localStorage);
+
+	initializeWelcomePopup();
+	appendCarCardsToContainer();
+	attachGlobalEventListeners();
+	restoreUserDataFromStorage();
+	restoreOrdersFromStorage();
+
 	console.log(
 		"Previous orders in local storage:",
 		JSON.parse(localStorage.getItem("orders")) || []
 	);
-	appendCarCardsToContainer();
-	attachGlobalEventListeners();
 }
+initApp();
 
 function attachGlobalEventListeners() {
 	const backHomeButtons = document.querySelectorAll(
 		".back-home-btn, .logo-clickable"
 	);
 	backHomeButtons.forEach(button =>
-		button.addEventListener("click", goToHomeView)
+		button.addEventListener("click", handleGoHomeClick)
 	);
-
-	const sortButton = document.getElementById("sort-by-brand-btn");
-	const optionsWrapper = document.getElementById("brand-options-wrapper");
-	const optionsList = document.getElementById("brand-options-list");
-
-	if (sortButton && optionsWrapper && optionsList) {
-		setupBrandSorting(sortButton, optionsWrapper, optionsList);
-	}
-
-	const confirmOrderButton = document.getElementById("form-confirm-btn");
-	if (confirmOrderButton) {
-		confirmOrderButton.addEventListener("click", handleFormSubmission);
-	}
-
-	const accessoriesList = document.getElementById("accessories-list");
-	if (accessoriesList) {
-		accessoriesList.addEventListener("click", handleAccessoryButtonClick);
-	}
-
-	attachColorInputListener();
 }
-
-function attachColorInputListener() {
-	const colorPickerInput = document.getElementById("color-picker");
-
-	if (colorPickerInput) {
-		colorPickerInput.addEventListener("input", handleAccessoryColorInput);
-	}
+function handleGoHomeClick() {
+	appendCarCardsToContainer();
+	toggleElementAttribute(sortingAside, "hidden", false);
+	toggleElementAttribute(carOrderSection, "hidden", true);
+	toggleElementAttribute(purchaseSummarySection, "hidden", true);
 }
-
-function setupBrandSorting(sortButton, optionsContainer, optionsList) {
-	const getUniqueBrands = cars => [...new Set(cars.map(car => car.brand))];
-	const createBrandOption = brand => {
-		const option = document.createElement("li");
-		option.textContent = brand;
-		option.classList.add("brand-option");
-		option.dataset.brand = brand;
-		return option;
-	};
-	const filterCarsByBrand = (cars, brand) =>
-		cars.filter(car => car.brand === brand);
-
-	let isSorted = false;
-
-	sortButton.addEventListener("click", () => {
-		isSorted = !isSorted;
-		if (isSorted) {
-			const uniqueBrands = getUniqueBrands(processedCarsData);
-			optionsList.innerHTML = "";
-			optionsList.appendChild(createBrandOption("All brands"));
-			uniqueBrands.forEach(brand =>
-				optionsList.appendChild(createBrandOption(brand))
-			);
-			optionsContainer.hidden = false;
-		} else {
-			optionsContainer.hidden = true;
-		}
-	});
-
-	optionsContainer.addEventListener("click", event => {
-		const selectedOption = event.target.closest(".brand-option");
-		if (selectedOption) {
-			const selectedBrand = selectedOption.dataset.brand;
-			if (selectedBrand === "All brands") {
-				appendCarCardsToContainer();
-			} else {
-				const filteredCars = filterCarsByBrand(
-					processedCarsData,
-					selectedBrand
-				);
-				appendCarCardsToContainer(null, filteredCars);
-				document
-					.querySelectorAll(`.car-card[data-brand="${selectedBrand}"]`)
-					.forEach(card => card.setAttribute("sorted", ""));
-			}
-			isSorted = false;
-			optionsContainer.hidden = true;
-		}
-	});
-}
-
+// functions for section with car cards or car card
 function renderCarCard(card, car) {
 	const { brand, model, year, enginePower, mileage, price, images } = car;
 	const carCard = card.querySelector(".car-card");
@@ -170,7 +108,6 @@ function renderCarCard(card, car) {
 
 	renderAndAppendButtonsToCarCard(card, car);
 }
-
 function renderAndAppendButtonsToCarCard(card, car) {
 	const buttonsContainer = card.querySelector(".car-card__btns-container");
 	const buttonTemplate = document.getElementById("car-card__btns-template");
@@ -185,7 +122,6 @@ function renderAndAppendButtonsToCarCard(card, car) {
 
 	buttonsContainer.appendChild(buttons);
 }
-
 function appendCarCardsToContainer(chosenCar, cars = processedCarsData) {
 	const CardsContainer = document.getElementById("cars-container-grid");
 	const carCardTemplate = document.getElementById("car-card-template");
@@ -205,130 +141,103 @@ function appendCarCardsToContainer(chosenCar, cars = processedCarsData) {
 		});
 	}
 }
-
 let chosenCar;
-
 function handleCarCardButtonClick(car) {
-	console.log(
-		"Local storage orders:",
-		JSON.parse(localStorage.getItem("orders"))
-	);
-	clearSortedAttribute();
 	chosenCar = car;
 	appendCarCardsToContainer(chosenCar);
-	updateOrCreateOrderInStorage(chosenCar);
-	updateOrCreateUserDataInStorage(chosenCar);
 	carouselCarImages(chosenCar);
-	showCarOrder();
-	hideSortingAside();
+	addOrUpdateUserDataToStorage(chosenCar);
+	addOrderToStorage(chosenCar);
 	updateCarOrderSection(chosenCar);
+	chosenAccessoriesList.innerHTML = "";
 	appendAccessoryListItems(chosenCar);
-	updateAccessoryButtonsFromLocalStorage(chosenCar);
-	updateSummaryListFromLocalStorage(chosenCar);
-	updateTotalPrice(chosenCar.id);
+	restoreOrderStateFromStorage(chosenCar);
+	// prepareChosenAccessoriesListItem(chosenCar);
+	attachFormEventListeners();
+	attachValidationListeners();
+	toggleElementAttribute(sortingAside, "hidden", true);
+	toggleElementAttribute(carOrderSection, "hidden", false);
+	// updateTotalPrice(chosenCar.id);
 
 	console.log(
 		"Local storage orders after updating:",
 		JSON.parse(localStorage.getItem("orders"))
 	);
 }
-
-function updateCarOrderSection(chosenCar) {
-	updateElement(".brand", chosenCar.brand);
-	updateElement(".model", chosenCar.model);
-	updateElement(".car-price", chosenCar.price.toFixed(2));
-	updateElement(".total-price-value", chosenCar.price.toFixed(2));
+// functions for car order section
+function updateCarOrderSection(car) {
+	updateElement(".brand", car.brand);
+	updateElement(".model", car.model);
+	updateElement(".car-price", car.price.toFixed(2));
+	updateElement(".total-price-value", car.price.toFixed(2));
 }
-function updateOrCreateUserDataInStorage() {
-	console.log("Updating or creating user data in storage");
-
-	const userDataKey = `user_data`;
-
-	const userData = {
-		fullName: fullNameInput.value,
-		pickupPlace: pickupPlaceInput.value,
-		pickupDate: pickupDateInput.value,
-		paymentMethod: document.querySelector('input[name="paymentMethod"]:checked')
-			?.value,
-	};
-
-	console.log("User data:", userData);
-
-	localStorage.setItem(userDataKey, JSON.stringify(userData));
-
-	console.log(
-		"User data stored in local storage:",
-		localStorage.getItem(userDataKey)
-	);
-}
-
-function updateOrCreateOrderInStorage() {
-	console.log("Updating or creating order in storage");
-	if (!chosenCar) {
-		throw new Error("No car selected");
-	}
-
-	const orders = JSON.parse(localStorage.getItem("orders")) || [];
-	const existingOrderIndex = orders.findIndex(
-		order => order.id === chosenCar.id
-	);
-
-	console.log("Existing order index:", existingOrderIndex);
-
-	if (existingOrderIndex === -1) {
-		// Tworzymy nowe zamówienie, jeśli nie istnieje
-		orders.push({
-			id: chosenCar.id,
-			brand: chosenCar.brand,
-			model: chosenCar.model,
-			price: chosenCar.price,
-			accessories: [],
-		});
-		console.log("Added new order:", orders[orders.length - 1]);
-	}
-
-	console.log("Setting orders in storage");
-	localStorage.setItem("orders", JSON.stringify(orders));
-}
-
-function clearSortedAttribute() {
-	document.querySelectorAll(".car-card[sorted]").forEach(card => {
-		card.removeAttribute("sorted");
-	});
-}
-// render accessory list from accessories array and based on html template
 function renderAccessoryListItem(accessory, carId) {
 	const templateId = getTemplateId(accessory.id);
 	const template = document.getElementById(templateId);
 	const item = document.importNode(template.content, true);
 
-	const accessoryItem = item.querySelector(".accessory-item");
-	accessoryItem.dataset.accessoryId = accessory.id;
-	accessoryItem.dataset.carId = carId;
-
-	const nameElement = item.querySelector(".accessory-name");
-	nameElement.textContent = accessory.name;
-
-	const priceElement = item.querySelector(".accessory-price");
-	if (priceElement) {
-		priceElement.textContent = accessory.price
-			? accessory.price.toFixed(2)
-			: "N/A";
-	}
-
-	const addRemoveBtn = item.querySelector(".add-remove-btn");
-	addRemoveBtn.dataset.accessoryId = accessory.id;
-	addRemoveBtn.dataset.carId = carId;
+	setAccessoryItemDataset(
+		item.querySelector(".accessory-item"),
+		accessory.id,
+		carId
+	);
+	setAccessoryName(item.querySelector(".accessory-name"), accessory.name);
+	setAccessoryPrice(
+		item.querySelector(".accessory-price"),
+		accessory.price,
+		accessory.id
+	);
+	setColorPicker(
+		item.querySelector(".color-picker-input"),
+		accessory.color,
+		carId
+	);
+	setAccessoryButton(
+		item.querySelector(".add-remove-btn"),
+		accessory.id,
+		carId
+	);
 
 	return item;
 }
-// get template id based on accessory id
+function setAccessoryItemDataset(accessoryItem, accessoryId, carId) {
+	accessoryItem.dataset.accessoryId = accessoryId;
+	accessoryItem.dataset.carId = carId;
+}
+function setAccessoryName(nameElement, name) {
+	nameElement.textContent = name;
+}
+function setAccessoryPrice(priceElement, price, accessoryId) {
+	if (priceElement) {
+		priceElement.dataset.accessoryId = accessoryId;
+		priceElement.textContent = price ? price.toFixed(2) : "N/A";
+	}
+}
+function setColorPicker(colorPicker, color, carId) {
+	if (colorPicker) {
+		const selectedColor = getComputedStyle(document.documentElement)
+			.getPropertyValue(color)
+			.trim();
+		colorPicker.value = selectedColor;
+		colorPicker.dataset.carId = carId;
+		setColorPickerEventHandler(colorPicker, selectedColor);
+	}
+}
+function setAccessoryButton(accessoryButton, accessoryId, carId, color) {
+	accessoryButton.dataset.accessoryId = accessoryId;
+	accessoryButton.dataset.carId = carId;
+	if (color) {
+		accessoryButton.dataset.color = color;
+	}
+	accessoryButton.addEventListener("click", () =>
+		handleAccessoryButtonClick(carId, accessoryId)
+	);
+}
 function getTemplateId(accessoryId) {
 	return accessoryId === "addColor"
 		? "accessory-li-template-add-color"
 		: "accessory-li-template";
 }
-
 function appendAccessoryListItems() {
 	const accessoriesList = document.getElementById("accessories-list");
 	if (!accessoriesList) {
@@ -338,253 +247,271 @@ function appendAccessoryListItems() {
 	accessoriesList.innerHTML = "";
 
 	const fragment = document.createDocumentFragment();
+	const { accessories } = chosenCar;
 
-	if (!chosenCar.accessories) {
+	if (!accessories) {
 		throw new Error("Accessories array is missing");
 	}
 
-	chosenCar.accessories.forEach(accessory => {
+	accessories.forEach(accessory => {
 		const listItem = renderAccessoryListItem(accessory, chosenCar.id);
 		fragment.appendChild(listItem);
 	});
 
 	accessoriesList.appendChild(fragment);
-	attachColorInputListener();
+	attachGlobalEventListeners();
 }
-
-function handleAccessoryButtonClick(event) {
-	const button = event.target;
-	const accessoryId = button.dataset.accessoryId;
-	const carId = button.dataset.carId;
-
-	const accessoryItem = findAccessoryItem(accessoryId, carId);
-	const name = accessoryItem
-		.querySelector(".accessory-name")
-		.textContent.trim();
-	const price = parseFloat(
-		accessoryItem.querySelector(".accessory-price").textContent.trim()
-	);
-	const isSelected = button.hasAttribute("selected");
-	const color = getSelectedColor(accessoryItem);
-
-	const accessory = {
-		id: accessoryId,
-		name,
-		price,
-		selected: !isSelected,
-		color,
-	};
-
-	updateSelectedAccessoriesInOrder(accessory, accessory.selected);
-	updateSummaryListFromLocalStorage(accessory, accessory.selected);
-	toggleAccessoryButtonState(button);
-}
-
-function findAccessoryItem(accessoryId, carId) {
-	return document.querySelector(
-		`.accessory-item[data-accessory-id="${accessoryId}"][data-car-id="${carId}"]`
-	);
-}
-
-function getSelectedColor(accessoryItem) {
-	const colorInput = accessoryItem.querySelector('input[type="color"]');
-	return colorInput ? colorInput.value : undefined;
-}
-
-function toggleAccessoryButtonState(button) {
-	if (button.hasAttribute("selected")) {
-		button.removeAttribute("selected");
-	} else {
-		button.setAttribute("selected", "");
-	}
-}
-function updateAccessoryButtonsFromLocalStorage() {
-	const orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-	const order = orders.find(order => order.id === chosenCar.id);
-	if (!order) {
-		return;
-	}
-
-	order.accessories.forEach(accessory => {
-		const button = document.querySelector(
-			`.add-remove-btn[data-accessory-id="${accessory.id}"][data-car-id="${chosenCar.id}"]`
-		);
-		if (button) {
-			button.setAttribute("selected", "");
-		}
-	});
-
-	chosenCar.accessories.forEach(accessory => {
-		if (!order.accessories.some(acc => acc.id === accessory.id)) {
-			const button = document.querySelector(
-				`.add-remove-btn[data-accessory-id="${accessory.id}"][data-car-id="${chosenCar.id}"]`
-			);
-			if (button) {
-				button.removeAttribute("selected");
-			}
-		}
+let chosenColor;
+function setColorPickerEventHandler(colorPickerInput) {
+	colorPickerInput.addEventListener("input", ({ target }) => {
+		const color = target.value;
+		document.documentElement.style.setProperty("--individual-color", color);
+		colorPickerInput.dataset.color = color;
+		chosenColor = color;
 	});
 }
 
-function updateSummaryListFromLocalStorage() {
-	const orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-	const order = orders.find(order => order.id === chosenCar.id);
-	if (!order) {
-		return;
-	}
-
-	const summaryListElement = document.getElementById("chosen-accessories-list");
-	if (!summaryListElement) {
-		throw new Error("Summary list element not found");
-	}
-
-	summaryListElement.innerHTML = "";
-
-	order.accessories.forEach(accessory => {
-		const listItem = createListItem(accessory);
-		summaryListElement.appendChild(listItem);
-	});
-}
-
-function createListItem(accessory) {
+function addChosenAccessoryListElement(accessoryId, carId) {
 	const listItem = document.createElement("li");
-	listItem.dataset.accessoryId = accessory.id;
+	listItem.dataset.accessoryId = accessoryId;
+	listItem.dataset.carId = carId;
 
-	if (accessory.id === "addColor") {
+	const spanName = document.createElement("span");
+	const colon = document.createTextNode(": ");
+	const spanPrice = document.createElement("span");
+
+	const accessory = chosenCar.accessories.find(acc => acc.id === accessoryId);
+	spanName.textContent = accessory.name;
+	spanPrice.textContent = accessory.price;
+	spanPrice.classList.add("accessory-price", "price-currency", "medium");
+
+	if (accessoryId === "addColor") {
 		listItem.classList.add("accessory-color-if-chosen");
 	}
 
-	const accessoryName = document.createElement("span");
-	accessoryName.textContent = `${accessory.name}: `;
-	listItem.appendChild(accessoryName);
+	listItem.appendChild(spanName);
+	listItem.appendChild(colon);
+	listItem.appendChild(spanPrice);
 
-	const accessoryPrice = createPriceElement(accessory);
-	listItem.appendChild(accessoryPrice);
-
-	return listItem;
+	chosenAccessoriesList.appendChild(listItem);
 }
 
-function createPriceElement(accessory) {
-	const priceElement = document.createElement("span");
-	priceElement.textContent = accessory.price.toFixed(2);
-	priceElement.classList.add("price-currency", "medium");
-
-	return priceElement;
+function removeChosenAccessoryListElement(accessoryId, carId) {
+	const chosenAccessoriesListItem = chosenAccessoriesList.querySelector(
+		`li[data-accessory-id="${accessoryId}"][data-car-id="${carId}"]`
+	);
+	if (chosenAccessoriesListItem) {
+		chosenAccessoriesList.removeChild(chosenAccessoriesListItem);
+	}
 }
 
-function updateSelectedAccessoriesInOrder(accessory, isSelected) {
-	if (!chosenCar) {
-		throw new Error("No car selected");
+function handleAccessoryButtonClick(carId, accessoryId) {
+	const orders = JSON.parse(localStorage.getItem("orders")) || {};
+	const orderId = `order-${carId}`;
+	const order = orders[orderId];
+	if (!order) {
+		return;
 	}
+	const accessory = order.accessories.find(acc => acc.id === accessoryId);
+	const button = document.querySelector(
+		`.add-remove-btn[data-car-id="${carId}"][data-accessory-id="${accessoryId}"]`
+	);
 
-	const carId = chosenCar.id;
-
-	const orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-	const existingOrderIndex = orders.findIndex(order => order.id === carId);
-
-	if (existingOrderIndex === -1) {
-		orders.push({
-			id: chosenCar.id,
-			brand: chosenCar.brand,
-			model: chosenCar.model,
-			price: chosenCar.price,
-			accessories: [],
-		});
-	}
-
-	const orderIndex = orders.findIndex(order => order.id === carId);
-	const order = orders[orderIndex];
-
-	if (isSelected) {
-		const accessoryIndex = order.accessories.findIndex(
-			acc => acc.id === accessory.id
-		);
-		if (accessoryIndex === -1) {
-			order.accessories.push(accessory);
-		}
+	if (accessory) {
+		removeAccessoryFromOrder(order, accessoryId);
+		toggleElementAttribute(button, "selected", false);
+		removeChosenAccessoryListElement(accessoryId, carId);
 	} else {
-		order.accessories = order.accessories.filter(
-			acc => acc.id !== accessory.id
+		const chosenAccessory = chosenCar.accessories.find(
+			acc => acc.id === accessoryId
 		);
-	}
-
-	localStorage.setItem("orders", JSON.stringify(orders));
-
-	updateTotalPrice(carId);
-	console.log(localStorage.getItem("orders")); // Logowanie, aby sprawdzić, czy zamówienie zostało zaktualizowane
-}
-
-function handleAccessoryColorInput(event) {
-	const accessoryItem = event.target.closest(".accessory-item");
-	if (!accessoryItem) {
-		throw new Error("Accessory item not found");
-	}
-	const carId = accessoryItem.dataset.carId;
-	const chosenCar = processedCarsData.find(car => car.id === carId);
-	const accessoryId = accessoryItem.dataset.accessoryId;
-	const color = event.target.value;
-	const action = accessoryItem
-		.querySelector(".add-remove-btn")
-		.hasAttribute("selected");
-
-	const accessoryToUpdate = chosenCar.accessories.find(
-		accessory => accessory.id === accessoryId
-	);
-	if (accessoryToUpdate) {
-		accessoryToUpdate.color = color;
-	}
-
-	document.documentElement.style.setProperty("--chosen-input-color", color);
-
-	console.log("Setting orders in storage");
-	const orders = JSON.parse(localStorage.getItem("orders")) || [];
-	const order = orders.find(order => order.id === carId);
-	if (order) {
-		const accessoryIndex = order.accessories.findIndex(
-			accessory => accessory.id === accessoryId
+		const colorInput = document.querySelector(
+			`.accessory-item[data-accessory-id="${accessoryId}"][data-car-id="${carId}"] input[type="color"]`
 		);
-		if (accessoryIndex !== -1) {
-			order.accessories[accessoryIndex].color = color;
+		if (colorInput) {
+			chosenColor = colorInput.value;
 		}
+		addAccessoryToOrder(order, chosenAccessory);
+		toggleElementAttribute(button, "selected", true);
+		addChosenAccessoryListElement(accessoryId, carId);
+	}
+	localStorage.setItem("orders", JSON.stringify(orders));
+	updateTotalPrice(carId);
+
+	console.log(
+		"Local storage orders with selected accessories after updating:",
+		JSON.parse(localStorage.getItem("orders"))
+	);
+}
+function updateTotalPrice(carId) {
+	const orders = JSON.parse(localStorage.getItem("orders")) || {};
+	const orderId = `order-${carId}`;
+	const car = orders[orderId];
+
+	if (!car) {
+		return;
 	}
 
-	localStorage.setItem("orders", JSON.stringify(orders));
+	const totalPrice =
+		car.price +
+		car.accessories.reduce(
+			(total, accessory) => total + parseFloat(accessory.price),
+			0
+		);
 
-	updateSelectedAccessoriesInOrder(carId, { id: accessoryId, color }, action);
-	updateAccessoryButtonState(accessoryItem, accessoryId);
+	const totalPriceElement = document.querySelector(
+		`#total-price .total-price-value`
+	);
+	totalPriceElement.textContent = totalPrice.toFixed(2);
+}
+function updatePurchaseSummary(purchaseSummary) {
+	updateElement(".full-name-text", purchaseSummary.customerName);
+	updateElement(".days-to-pickup", purchaseSummary.daysToPickup);
+	updateElement(".brand", purchaseSummary.car.brand);
+	updateElement(".model", purchaseSummary.car.model);
+	updateElement(".year", purchaseSummary.car.year);
+	updateElement(".pickup-place", purchaseSummary.pickupPlace);
 }
 
-function updateTotalPrice(carId) {
-	const order = JSON.parse(localStorage.getItem("orders")) || [];
-	const selectedCar = order.find(car => car.id === carId);
-	const totalAccessoriesPrice = selectedCar.accessories.reduce(
-		(total, accessory) => total + parseFloat(accessory.price),
-		0
+function removeAccessoryFromOrder(order, accessoryId) {
+	order.accessories = order.accessories.filter(
+		accessory => accessory.id !== accessoryId
+	);
+}
+function addAccessoryToOrder(order, accessory) {
+	const newAccessory = {
+		id: accessory.id,
+		name: accessory.name,
+		price: accessory.price,
+	};
+	if (accessory.id === "addColor" && chosenColor) {
+		newAccessory.color = chosenColor;
+	}
+	order.accessories.push(newAccessory);
+}
+// functions for local storage
+function addOrderToStorage(chosenCar) {
+	if (!chosenCar) return;
+
+	const orders = JSON.parse(localStorage.getItem("orders")) || {};
+	const orderId = `order-${chosenCar.id}`;
+	const order = orders[orderId] || {
+		id: chosenCar.id,
+		brand: chosenCar.brand,
+		model: chosenCar.model,
+		price: chosenCar.price,
+		accessories: [],
+	};
+
+	orders[orderId] = order;
+	localStorage.setItem("orders", JSON.stringify(orders));
+}
+
+// functions for sorting car cards by brand
+function setupBrandSorting(
+	sortButtonElement,
+	optionsContainerElement,
+	optionsListElement
+) {
+	const getUniqueBrands = cars => [...new Set(cars.map(car => car.brand))];
+	const createBrandOption = brand => {
+		const option = document.createElement("li");
+		option.textContent = brand;
+		option.classList.add("brand-option");
+		option.dataset.brand = brand;
+		return option;
+	};
+	const filterCarsByBrand = (cars, brand) =>
+		cars.filter(car => car.brand === brand);
+
+	let isSorted = false;
+
+	sortButtonElement.addEventListener("click", () => {
+		isSorted = !isSorted;
+		if (isSorted) {
+			const uniqueBrands = getUniqueBrands(processedCarsData);
+			optionsListElement.innerHTML = "";
+			optionsListElement.appendChild(createBrandOption("All brands"));
+			uniqueBrands.forEach(brand =>
+				optionsListElement.appendChild(createBrandOption(brand))
+			);
+			optionsContainerElement.hidden = false;
+		} else {
+			optionsContainerElement.hidden = true;
+		}
+	});
+
+	optionsContainerElement.addEventListener("click", event => {
+		const selectedOption = event.target.closest(".brand-option");
+		if (selectedOption) {
+			const selectedBrand = selectedOption.dataset.brand;
+			if (selectedBrand === "All brands") {
+				appendCarCardsToContainer();
+			} else {
+				const filteredCars = filterCarsByBrand(
+					processedCarsData,
+					selectedBrand
+				);
+				appendCarCardsToContainer(null, filteredCars);
+				document
+					.querySelectorAll(`.car-card[data-brand="${selectedBrand}"]`)
+					.forEach(card => card.setAttribute("sorted", ""));
+			}
+			isSorted = false;
+			optionsContainerElement.hidden = true;
+		}
+	});
+}
+
+const sortButton = document.getElementById("sort-by-brand-btn");
+const optionsWrapper = document.getElementById("brand-options-wrapper");
+const optionsList = document.getElementById("brand-options-list");
+
+if (sortButton && optionsWrapper && optionsList) {
+	setupBrandSorting(sortButton, optionsWrapper, optionsList);
+}
+
+// functions for form
+function handleFormSubmission() {
+	event.preventDefault();
+
+	const customerName = fullNameInput.value.trim();
+	const pickupDate = pickupDateInput.value;
+	const selectedPickupPlace = pickupPlaceInput.value;
+	const selectedPaymentMethod = document.querySelector(
+		'input[name="paymentMethod"]:checked'
 	);
 
-	const totalPrice = selectedCar.price + totalAccessoriesPrice;
-	document.querySelector(`#total-price .total-price-value`).textContent =
-		totalPrice.toFixed(2);
-}
+	const isFormValid = validateForm();
 
-function goToHomeView() {
-	appendCarCardsToContainer();
-	showSortingAside();
-	hideCarOrder();
-	hidePurchaseSummary();
+	if (isFormValid && chosenCar) {
+		const daysToPickup = calculateDaysToPickup(pickupDate);
+		const purchaseSummary = {
+			car: chosenCar,
+			customerName,
+			pickupDate,
+			pickupPlace: selectedPickupPlace,
+			daysToPickup,
+		};
+
+		updatePurchaseSummary(purchaseSummary);
+		toggleElementAttribute(carOrderSection, "hidden", true);
+		toggleElementAttribute(purchaseSummarySection, "hidden", false);
+		clearLocalStorage();
+	}
+	const confirmOrderButton = document.getElementById("form-confirm-btn");
+	if (confirmOrderButton) {
+		confirmOrderButton.removeEventListener("click", handleFormSubmission);
+		confirmOrderButton.addEventListener("click", handleFormSubmission);
+	}
 }
-//////////////////////////////////////
-///////// form validation ////////////
-//////////////////////////////////////
 function attachFormEventListeners() {
-	fullNameInput.addEventListener("input", updateOrCreateUserDataInStorage);
-	pickupDateInput.addEventListener("input", updateOrCreateUserDataInStorage);
-	pickupPlaceInput.addEventListener("change", updateOrCreateUserDataInStorage);
+	confirmOrderButton.addEventListener("click", handleFormSubmission);
+	fullNameInput.addEventListener("input", addOrUpdateUserDataToStorage);
+	pickupDateInput.addEventListener("input", addOrUpdateUserDataToStorage);
+	pickupPlaceInput.addEventListener("change", addOrUpdateUserDataToStorage);
 	paymentMethodInputs.forEach(input => {
-		input.addEventListener("change", updateOrCreateUserDataInStorage);
+		input.addEventListener("change", addOrUpdateUserDataToStorage);
 	});
 }
 function attachValidationListeners() {
@@ -651,63 +578,33 @@ function validateForm() {
 	return isFormValid;
 }
 
-function handleFormSubmission() {
-	event.preventDefault();
+//////////////////////////////////
+///////// local storage //////////
+//////////////////////////////////
+const clearLocalStorage = () => localStorage.clear();
+// User
+function addOrUpdateUserDataToStorage() {
+	console.log("Updating or creating user data in storage");
 
-	const customerName = fullNameInput.value.trim();
-	const pickupDate = pickupDateInput.value;
-	const selectedPickupPlace = pickupPlaceInput.value;
-	const selectedPaymentMethod = document.querySelector(
-		'input[name="paymentMethod"]:checked'
+	const userDataKey = `user_data`;
+
+	const userData = {
+		fullName: fullNameInput.value,
+		pickupPlace: pickupPlaceInput.value,
+		pickupDate: pickupDateInput.value,
+		paymentMethod: document.querySelector('input[name="paymentMethod"]:checked')
+			?.value,
+	};
+
+	console.log("User data:", userData);
+
+	localStorage.setItem(userDataKey, JSON.stringify(userData));
+
+	console.log(
+		"User data stored in local storage:",
+		localStorage.getItem(userDataKey)
 	);
-
-	const isFormValid = validateForm();
-
-	if (isFormValid && chosenCar) {
-		const daysToPickup = calculateDaysToPickup(pickupDate);
-		const purchaseSummary = {
-			car: chosenCar,
-			customerName,
-			pickupDate,
-			pickupPlace: selectedPickupPlace,
-			daysToPickup,
-		};
-
-		updatePurchaseSummary(purchaseSummary);
-		hideCarOrder();
-		showPurchaseSummary();
-		clearLocalStorage();
-	}
 }
-function updatePurchaseSummary(purchaseSummary) {
-	updateElement(".full-name-text", purchaseSummary.customerName);
-	updateElement(".days-to-pickup", purchaseSummary.daysToPickup);
-	updateElement(".brand", purchaseSummary.car.brand);
-	updateElement(".model", purchaseSummary.car.model);
-	updateElement(".year", purchaseSummary.car.year);
-	updateElement(".pickup-place", purchaseSummary.pickupPlace);
-}
-function calculateDaysToPickup(pickupDate) {
-	const currentDate = new Date();
-	const timeDifference = new Date(pickupDate) - currentDate;
-	const millisecondsInDay = 1000 * 60 * 60 * 24;
-	const daysToPickup = Math.ceil(timeDifference / millisecondsInDay);
-	return daysToPickup;
-}
-// function to update car images and show them in carousel
-function carouselCarImages(car) {
-	const carImages = document.querySelectorAll(`[data-car-id="${car.id}"]`);
-	if (carImages.length === 0) return;
-
-	let currentIndex = 0;
-	const intervalId = setInterval(() => {
-		currentIndex = (currentIndex + 1) % car.images.length;
-		carImages.forEach(image => (image.src = car.images[currentIndex]));
-	}, 4000);
-
-	return () => clearInterval(intervalId);
-}
-
 function restoreUserDataFromStorage() {
 	const userData = JSON.parse(localStorage.getItem("user_data"));
 	if (userData) {
@@ -722,34 +619,53 @@ function restoreUserDataFromStorage() {
 		}
 	}
 }
-// function to update elements in the DOM
-function updateElement(selector, value) {
-	const elements = document.querySelectorAll(selector);
-	elements.forEach(element => (element.textContent = value));
+// Orders
+function restoreOrdersFromStorage() {
+	return JSON.parse(localStorage.getItem("orders")) || [];
 }
+function restoreOrderStateFromStorage() {
+	const orders = JSON.parse(localStorage.getItem("orders"));
+	if (
+		!orders ||
+		typeof orders !== "object" ||
+		!Array.isArray(Object.values(orders))
+	)
+		return;
 
-const showCarOrder = () => (carOrderSection.hidden = false);
-const hideCarOrder = () => (carOrderSection.hidden = true);
+	const currentOrder = orders[`order-${chosenCar.id}`];
+	if (!currentOrder) return;
 
-const showSortingAside = () => (sortingAside.hidden = false);
-const hideSortingAside = () => (sortingAside.hidden = true);
+	currentOrder.accessories.forEach(accessory => {
+		const button = document.querySelector(
+			`.add-remove-btn[data-accessory-id="${accessory.id}"][data-car-id="${chosenCar.id}"]`
+		);
+		if (button) {
+			button.setAttribute("selected", "");
+			addChosenAccessoryListElement(accessory.id, chosenCar.id);
+			updateTotalPrice(chosenCar.id);
+		}
+	});
+}
+function calculateDaysToPickup(pickupDate) {
+	const currentDate = new Date();
+	const timeDifference = new Date(pickupDate) - currentDate;
+	const millisecondsInDay = 1000 * 60 * 60 * 24;
+	const daysToPickup = Math.ceil(timeDifference / millisecondsInDay);
+	return daysToPickup;
+}
+function carouselCarImages(car) {
+	const carImages = document.querySelectorAll(`[data-car-id="${car.id}"]`);
+	if (carImages.length === 0) return;
 
-const showPurchaseSummary = () => (purchaseSummarySection.hidden = false);
-const hidePurchaseSummary = () => (purchaseSummarySection.hidden = true);
+	let currentIndex = 0;
+	const intervalId = setInterval(() => {
+		currentIndex = (currentIndex + 1) % car.images.length;
+		carImages.forEach(image => (image.src = car.images[currentIndex]));
+	}, 4000);
 
-document.addEventListener("DOMContentLoaded", () => {
-	attachFormEventListeners();
-	attachValidationListeners();
-	restoreUserDataFromStorage();
-	try {
-		initApp();
-	} catch (error) {
-		console.error(error);
-	}
-});
-
-// Welcome popup with closing countdown
-document.addEventListener("DOMContentLoaded", () => {
+	return () => clearInterval(intervalId);
+}
+function initializeWelcomePopup() {
 	const welcomePopup = document.getElementById("welcome-popup");
 	const closeButton = document.getElementById("close-popup-btn");
 	const timer = document.getElementById("countdown");
@@ -784,4 +700,15 @@ document.addEventListener("DOMContentLoaded", () => {
 		welcomePopup.style.display = "none";
 		clearInterval(interval);
 	});
-});
+}
+function updateElement(selector, value) {
+	const elements = document.querySelectorAll(selector);
+	elements.forEach(element => (element.textContent = value));
+}
+function toggleElementAttribute(element, attribute, value) {
+	if (value) {
+		element.setAttribute(attribute, "");
+	} else {
+		element.removeAttribute(attribute);
+	}
+}
