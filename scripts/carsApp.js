@@ -694,11 +694,15 @@ function initializeWelcomePopup() {
 
 	const startTimer = () => {
 		interval = setInterval(() => {
-			timeLeft--;
-			updateTimer();
-			if (timeLeft <= 0) {
+			if (document.hasFocus()) {
+				timeLeft--;
+				updateTimer();
+				if (timeLeft <= 0) {
+					clearInterval(interval);
+					welcomePopup.style.display = "none";
+				}
+			} else {
 				clearInterval(interval);
-				welcomePopup.style.display = "none";
 			}
 		}, 1000);
 	};
