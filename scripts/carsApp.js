@@ -1,10 +1,5 @@
 import { cleanId, processedCarsData, pickupPlaces } from "./carsData.js";
 
-const defaultColor = getComputedStyle(
-	document.documentElement
-).getPropertyValue("--individual-color");
-
-const carCardsSection = document.getElementById("available-cars-sc");
 const carOrderSection = document.getElementById("car-order-sc");
 const purchaseSummarySection = document.getElementById("purchase-summary-sc");
 const chosenAccessoriesList = document.getElementById(
@@ -14,8 +9,6 @@ const sortingAside = document.querySelector("aside.sorting");
 
 const currentYearElement = document.getElementById("current-year");
 currentYearElement.textContent = new Date().getFullYear();
-
-const orderForm = document.getElementById("car-order-form");
 
 const fullNameInput = document.getElementById("full-name");
 const pickupDateInput = document.getElementById("pickup-date");
@@ -44,6 +37,10 @@ function initApp() {
 	restoreUserDataFromStorage();
 	restoreOrdersFromStorage();
 
+	console.log(
+		"User data in local storage after app initialization:",
+		JSON.parse(localStorage.getItem("userData")) || []
+	);
 	console.log(
 		"Orders in local storage after app initialization:",
 		JSON.parse(localStorage.getItem("orders")) || []
@@ -436,8 +433,6 @@ if (sortButton && optionsWrapper && optionsList) {
 
 // functions for form order
 function handleFormSubmission() {
-	event.preventDefault();
-
 	const customerName = fullNameInput.value.trim();
 	const pickupDate = pickupDateInput.value;
 	const selectedPickupPlace = pickupPlaceInput.value;
@@ -464,14 +459,20 @@ function handleFormSubmission() {
 		updatePurchaseSummary(purchaseSummary);
 		toggleElementAttribute(carOrderSection, "hidden", true);
 		toggleElementAttribute(purchaseSummarySection, "hidden", false);
+
+		console.log("Before clearing local storage:", localStorage);
 		clearLocalStorage();
-	}
-	const confirmOrderButton = document.getElementById("form-confirm-btn");
-	if (confirmOrderButton) {
-		confirmOrderButton.removeEventListener("click", handleFormSubmission);
-		confirmOrderButton.addEventListener("click", handleFormSubmission);
+		console.log("After clearing local storage:", localStorage);
+
+		fullNameInput.value = "";
+		pickupDateInput.value = "";
+		pickupPlaceInput.value = "";
+		paymentMethodInputs.forEach(input => {
+			input.checked = false;
+		});
 	}
 }
+
 function attachFormEventListeners() {
 	confirmOrderButton.addEventListener("click", handleFormSubmission);
 	fullNameInput.addEventListener("input", addOrUpdateUserDataToStorage);
