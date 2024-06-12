@@ -18,6 +18,7 @@
 	--black: #000000;
 	--valid: #6c9d6c;
 	--invalid: #e66d6d;
+	--link: var(--base);
 
 	--individual-color: #fec7c7;
 
@@ -31,13 +32,6 @@
 	--bg4: #f1ebcd;
 	--bg5: #f9e4e4;
 	--bg6: #eae6f0;
-
-	/* picker colors for individual color cars */
-	/* --picker-1: #fec7c7;
-	--picker-2: #459ea8;
-	--picker-3: #7db296;
-	--picker-4: #e0e187;
-	--picker-5: #9a4b72; */
 
 	/* space variables */
 	--grid-gap: 10px;
@@ -238,6 +232,9 @@ button:focus {
 	color: var(--links);
 	background-color: var(--white);
 	margin-top: var(--space-xs);
+}
+.btn-outline {
+	border: 0.5px solid var(--base);
 }
 .btn--transparent {
 	color: var(--links);
@@ -536,5 +533,18 @@ legend {
 }
 
 /*///////////////////////////////*/
-/*///// color input styling /////*/
+.footnote {
+	padding: var(--space-m) 0;
+}
+
 /*///////////////////////////////*/
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}

@@ -6,7 +6,7 @@
 	max-width: 600px;
 	transform: translate(-50%, -50%);
 	background-color: var(--accent);
-	padding: var(--space-xl);
+	padding: var(--space-l);
 	border: 0;
 	z-index: 1000;
 }
@@ -28,8 +28,19 @@
 	z-index: 999;
 }
 #summary-message {
-	padding: var(--space-m) 0;
+	padding-top: var(--space-m);
 }
+#final-countdown {
+	color: var(--white);
+	text-align: center;
+	background-color: var(--invalid);
+	margin: auto;
+	border-radius: 50%;
+	padding-top: var(--space-s);
+	width: calc(var(--space-xl) * 2);
+	height: calc(var(--space-xl) * 2);
+}
+
 .cars-container--grid,
 .car-card-chosen-container {
 	display: grid;
@@ -125,10 +136,6 @@
 		column-span: 10;
 	}
 }
-/* .car-card[chosen] h2,
-.car-card[chosen] p {
-	margin-inline-start: var(--space-xl);
-} */
 .car-card h2 {
 	font-size: 1.8em;
 	line-height: 1;
@@ -393,4 +400,7 @@
 }
 .slide-animation {
 	animation: slideLeft 3s ease-in-out infinite;
+}
+#heaven-hell-answer {
+	padding: var(--space-m) 0;
 }

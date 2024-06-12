@@ -38,15 +38,12 @@
                         aria-label="Link to lego website">lego</a> store</p>
                 <p>It will take <span id="countdown" class="larger medium"></span> minutes until the app reaches you.
                 </p>
-                <p>During this time, you can easily learn how a dachshund works from a
+                <p>In the meantime, you can close this window or learn how a dachshund works from a
                     <a href="https://ninateka.pl/vod/animacja/jak-dziala-jamniczek-julian-antonisz/" target="_blank"
                         aria-label="Link to the film by Julian Antonisz about how a dachshund works">
                         film by an excellent Polish non-camera artist
-                    </a> – it is also very helpful in understanding how JavaScript and the whole world in general
-                    works…
-                <p class="small">If you don't know Polish, you can use the transcription available on the website</p>
+                    </a> – it is helpful in understanding how JavaScript and the world works…
                 </p>
-                <p>(or you can simply reach the application by closing this window)</p>
             </div>
         </div>
 
@@ -81,7 +78,7 @@
             </button>
             <button class="phone-btn feedback btn--white" data-car-id="" data-feedback="+48 000 000 000"
                 aria-label="Click here to call us"><span class="ti ti-mobile">
-                </span><a href="tel:+48000000000">Call for more info</a>
+                </span><a href="tel:+48000000000">Call us for more info</a>
             </button>
         </template>
 
@@ -226,40 +223,61 @@
             </div>
         </section>
 
-        <section id="purchase-summary-sc" class="cars-sc" hidden>
+        <section id="purchase-summary-sc" class="cars-sc" hidden aria-label="Purchase summary section">
             <div class="text-content-width">
                 <div class="back-home-btn">
-                    <button class="back-home-btn btn--transparent" aria-label="Go back to all available cars">
+                    <button class="back-home-btn btn--transparent" aria-label="Go back to all available cars"
+                        title="Go back to all available cars">
                         <span id="ti-arrow-left" class="ti ti-arrow-left"></span> Go back to all available cars
                     </button>
                 </div>
+                <h2 class="sr-only">Purchase summary section</h2>
                 <div class="purchase-summary-container" aria-live="polite">
                     <h1 class="car-order__title medium">Thank you for your order!</h1>
                     <p class="second-font larger">Congratulation <span class="full-name-text"> </span>!</p>
-                    <hr class="c-hr">
-                    <p id="summary-message"> In <span class="days-to-pickup medium"></span> days your new
-                        <span class="brand medium"></span> <span class="model medium"></span>, <span
-                            class="year"></span>
-                        will be
-                        available for pickup in <span class="pickup-place medium"></span>.
+                    <hr class="c-hr" aria-hidden="true">
+                    <h2 class="sr-only">Order summary</h2>
+                    <p id="summary-message"> You chose <span class="brand medium"></span> <span
+                            class="model medium"></span>
                     </p>
-                </div>
-                <div id="miser-message" hidden>
-                    <p>
-                        Unfortunately - you chose Heaven as the pickup location and the miser's type of payment. Misers
-                        are not allowed into Heaven (it's beyond our control), so we suggest you pick up your car in
-                        Hell. If this solution doesn't suit you - just go to hell.
+                    <ul id="summary-list" aria-live="polite" aria-label="Chosen accessories">
+                        <!-- list dynamically fetched using js -->
+                    </ul>
+                    <p id="total-price-purchase-summary" class="total-price">Total price: <span
+                            class="total-price-value price-currency medium"></span>
                     </p>
-                </div>
-                <div id="generous-message" hidden>
-                    <p>
-                        Fortunately - you have chosen the type-generous payment method! Generous people go to Heaven, so
-                        as a reward you can pick up your order in Heaven and stay there as long as you wish, at our
-                        expense. If you're not interested, you can still go to Hell, of course.
+                    <p> Your car will be available for pickup in <span class="days-to-pickup medium"></span> days in
+                        <span id="pickup-place-text" class="pickup-place medium footnote-index"></span>.
                     </p>
+                    <div id="miser-message" hidden>
+                        <h2 class="sr-only">Miser's payment type</h2>
+                        <p class="footnote invalid-message">
+                            Unfortunately - you have chosen Heaven as your pick-up location and a miser's payment type
+                            (not sweet and no tip). Misers are not allowed in Heaven (it is beyond our control), so we
+                            kindly suggest that you pick up your car in Hell (they like sour jelly bears there). If this
+                            solution does not suit you - just go to Hell.
+                        </p>
+                        <button id="heaven-hell-btn-1" class="button" aria-label="I accept pick up in Hell">I accept
+                            pick up in Hell</button>
+                        <button id="heaven-hell-btn-2" class="btn--white btn-outline" aria-label="I don't accept. Go
+                            to Hell yourself!">I don't accept. Go to Hell yourself!</button>
+                    </div>
+                    <div id="generous-message" hidden>
+                        <h2 class="sr-only">Generous payment type</h2>
+                        <p class="footnote invalid-message">
+                            Fortunately, you chose a generous payment method! Generous people go to Heaven, so as a
+                            reward you can pick up your order in Heaven and stay there as long as you want, at our
+                            expense. If you are not interested, you can of course go to Hell.
+                        </p>
+                        <button id="heaven-hell-btn-3" class="button" aria-label="I will go to Heaven">I will go to
+                            Heaven</button>
+                        <button id="heaven-hell-btn-4" class="btn--white btn-outline" aria-label="I will stick to my
+                            choice">I will stick to my choice</button>
+                    </div>
+                    <p id="heaven-hell-answer" class="second-font larger"></p>
+                    <p id="final-countdown" class="final-countdown medium larger"></p>
                 </div>
             </div>
-        </section>
 
     </main>
     <footer>

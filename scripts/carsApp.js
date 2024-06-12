@@ -25,6 +25,12 @@ const paymentErrorMessage = document.getElementById("payment-invalid");
 const fullNameRegex = /^[\p{L}]+(?:['-][\p{L}]+)* [\p{L}]+(?:['-][\p{L}]+)*$/u;
 const minimumDateForPickup = new Date();
 minimumDateForPickup.setDate(minimumDateForPickup.getDate() + 14);
+
+const answer = document.getElementById("heaven-hell-answer");
+const finalCounterElement = document.getElementById("final-countdown");
+const SummaryPickupPlace = document.getElementById("pickup-place-text");
+let countdownInterval;
+
 /**
  * Initializes the application by rendering all car cards.
  *
@@ -32,10 +38,11 @@ minimumDateForPickup.setDate(minimumDateForPickup.getDate() + 14);
  */
 function initApp() {
 	initializeWelcomePopup();
-	appendCarCardsToContainer();
+	handleGoHomeClick();
 	attachGlobalEventListeners();
 	restoreUserDataFromStorage();
 	restoreOrdersFromStorage();
+	clearLocalStorageEvery24Hours();
 
 	console.log(
 		"User data in local storage after app initialization:",
@@ -61,6 +68,10 @@ function handleGoHomeClick() {
 	toggleElementAttribute(sortingAside, "hidden", false);
 	toggleElementAttribute(carOrderSection, "hidden", true);
 	toggleElementAttribute(purchaseSummarySection, "hidden", true);
+	toggleElementAttribute(finalCounterElement, "hidden", true);
+	toggleElementAttribute(answer, "hidden", true);
+	SummaryPickupPlace.style.textDecoration = "none";
+	stopFinalCountAndCloseWindow();
 }
 // functions for section with car cards or car card
 function renderCarCard(card, car) {
@@ -341,11 +352,90 @@ function updatePurchaseSummary(purchaseSummary) {
 	updateElement(".days-to-pickup", purchaseSummary.daysToPickup);
 	updateElement(".brand", purchaseSummary.car.brand);
 	updateElement(".model", purchaseSummary.car.model);
-	updateElement(".year", purchaseSummary.car.year);
 	updateElement(".pickup-place", purchaseSummary.pickupPlace);
 
+	const orders = JSON.parse(localStorage.getItem("orders")) || {};
+	const orderId = `order-${purchaseSummary.car.id}`;
+	const order = orders[orderId];
+
+	const summaryList = document.getElementById("summary-list");
+	summaryList.innerHTML = "";
+
+	console.log("Order:", order);
+	console.log(
+		"Accessories length:",
+		order && order.accessories ? order.accessories.length : "N/A"
+	);
+
+	if (order && order.accessories && order.accessories.length > 0) {
+		order.accessories.forEach(accessory => {
+			const listItem = document.createElement("li");
+			listItem.textContent = `${accessory.name}`;
+			if (accessory.name === "Individual Color") {
+				listItem.classList.add("accessory-color-if-chosen");
+			}
+			summaryList.appendChild(listItem);
+		});
+	}
 	showPurchaseExtraMessage(purchaseSummary);
 }
+
+function finalCountAndCloseWindow(seconds) {
+	let countdown = seconds;
+	if (finalCounterElement) {
+		finalCounterElement.textContent = countdown;
+		countdownInterval = setInterval(() => {
+			countdown--;
+			finalCounterElement.textContent = countdown;
+			if (countdown === 0) {
+				clearInterval(countdownInterval);
+				finalCounterElement.textContent = "bang!";
+				setTimeout(() => {
+					window.close();
+				}, 1000);
+			}
+		}, 1000);
+		return countdownInterval;
+	}
+}
+
+function stopFinalCountAndCloseWindow() {
+	clearInterval(countdownInterval);
+	countdownInterval = null;
+}
+
+[
+	...document.querySelectorAll("#heaven-hell-btn-2, #heaven-hell-btn-4"),
+].forEach(btn => {
+	btn.addEventListener("click", () => {
+		answer.textContent =
+			"You have a few seconds to change your mind and stop the final countdown!";
+
+		finalCountAndCloseWindow(13);
+		toggleElementAttribute(finalCounterElement, "hidden", false);
+		toggleElementAttribute(answer, "hidden", false);
+		SummaryPickupPlace.style.textDecoration = "none";
+	});
+});
+
+document.getElementById("heaven-hell-btn-1").addEventListener("click", () => {
+	answer.textContent = "See you in Hell, then!";
+	stopFinalCountAndCloseWindow();
+	toggleElementAttribute(finalCounterElement, "hidden", true);
+	toggleElementAttribute(answer, "hidden", false);
+
+	SummaryPickupPlace.style.textDecoration = "line-through";
+});
+
+document.getElementById("heaven-hell-btn-3").addEventListener("click", () => {
+	answer.textContent = "All of Heaven is waiting for you!";
+	stopFinalCountAndCloseWindow();
+	toggleElementAttribute(finalCounterElement, "hidden", true);
+	toggleElementAttribute(answer, "hidden", false);
+
+	SummaryPickupPlace.style.textDecoration = "line-through";
+});
+
 function showPurchaseExtraMessage(purchaseSummary) {
 	const miserMessage = document.getElementById("miser-message");
 	const generousMessage = document.getElementById("generous-message");
@@ -464,6 +554,12 @@ function handleFormSubmission() {
 		clearLocalStorage();
 		console.log("After clearing local storage:", localStorage);
 
+		const selectedCarCard = document.querySelector(".car-card[chosen]");
+		if (selectedCarCard) {
+			selectedCarCard.querySelector(".car-card__btns-container").hidden = true;
+			selectedCarCard.querySelector(".car-price").hidden = true;
+		}
+
 		fullNameInput.value = "";
 		pickupDateInput.value = "";
 		pickupPlaceInput.value = "";
@@ -567,6 +663,15 @@ function validateForm() {
 
 // functions for local storage
 const clearLocalStorage = () => localStorage.clear();
+
+function clearLocalStorageEvery24Hours() {
+	setInterval(() => {
+		localStorage.clear();
+	}, 24 * 60 * 60 * 1000);
+}
+
+clearLocalStorageEvery24Hours();
+
 // User
 function addOrUpdateUserDataToStorage() {
 	const userDataKey = `user_data`;
@@ -583,6 +688,7 @@ function addOrUpdateUserDataToStorage() {
 
 	localStorage.setItem(userDataKey, JSON.stringify(userData));
 }
+
 function restoreUserDataFromStorage() {
 	const userData = JSON.parse(localStorage.getItem("user_data"));
 	if (userData) {
@@ -608,8 +714,13 @@ function addOrderToStorage(chosenCar) {
 		brand: chosenCar.brand,
 		model: chosenCar.model,
 		price: chosenCar.price,
+		totalPrice: chosenCar.price,
 		accessories: [],
 	};
+
+	order.accessories.forEach(accessory => {
+		order.totalPrice += accessory.price;
+	});
 
 	orders[orderId] = order;
 	localStorage.setItem("orders", JSON.stringify(orders));
@@ -673,6 +784,10 @@ function updateTotalPrice(carId) {
 		);
 
 	updateElement("#total-price .total-price-value", totalPrice.toFixed(2));
+	updateElement(
+		"#total-price-purchase-summary .total-price-value",
+		totalPrice.toFixed(2)
+	);
 }
 
 // welcome popup
