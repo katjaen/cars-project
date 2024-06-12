@@ -613,8 +613,21 @@ function preventEmptyInputForPickupDateInput() {
 	});
 }
 function setMinimumAndCurrentDateForPickupDateInput() {
-	pickupDateInput.min = minimumDateForPickup.toISOString().split("T")[0];
-	pickupDateInput.value = minimumDateForPickup.toISOString().split("T")[0];
+	const dateString = minimumDateForPickup.toISOString().split("T")[0];
+	const isIOS = navigator.userAgent.match(/ipad|iphone/i);
+	if (isIOS) {
+		// workaround for iOS Safari
+		const date = new Date(dateString);
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0");
+		const day = String(date.getDate()).padStart(2, "0");
+		pickupDateInput.min = `${year}-${month}-${day}`;
+		pickupDateInput.value = `${year}-${month}-${day}`;
+	} else {
+		// standard behavior
+		pickupDateInput.min = dateString;
+		pickupDateInput.value = dateString;
+	}
 }
 function hideOrShowPickupPlaceErrorMessage() {
 	pickupPlaceInput.addEventListener("change", function () {
