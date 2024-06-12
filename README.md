@@ -27,6 +27,8 @@ Link do aplikacji: [https://carproject.niklassmolen.pl/](https://carproject.nikl
 
 Aplikacja jest w pełni responsywna.
 
+[Powrót do Spisu Treści](#spis-treści--contents)
+
 ### Główne Funkcje
 
 #### Przeglądanie Dostępnych Samochodów
@@ -38,10 +40,14 @@ Aplikacja jest w pełni responsywna.
 - Aplikacja umożliwia łatwe dodawanie nowych samochodów, akcesoriów i lokalizacji odbioru poprzez aktualizację pliku `carsData.js`.
 - Samochody są walidowane i jeśli np. jest nieprawidłowy format ceny – nie wyświetlą się, a wyświetli się ostrzeżenie w konsoli [zademonstrowano na przykładzie].
 
+[Powrót do Spisu Treści](#spis-treści--contents)
+
 #### Wybór Samochodu do Zamówienia
 
 - Po wyborze samochodu użytkownik może przejść do zamawiania, wybierając dodatkowe akcesoria.
 - Akcesoria są wspólne dla wszystkich samochodów lub indywidualne dla danego modelu, przy czym jedno z akcesoriów pozwala na wybór indywidualnego koloru.
+
+[Powrót do Spisu Treści](#spis-treści--contents)
 
 #### Zarządzanie Zamówieniem
 
@@ -50,20 +56,28 @@ Aplikacja jest w pełni responsywna.
 - Rozpoczęte zamówienia są zapisywane w pamięci lokalnej, aby można było do nich wrócić później.
 - Pamięć lokalna jest czyszczona po złożeniu zamówienia.
 
+[Powrót do Spisu Treści](#spis-treści--contents)
+
 #### Podsumowanie Zamówienia
 
 - Przed złożeniem zamówienia użytkownik widzi podsumowanie zamówienia z wybranym samochodem, akcesoriami i ostateczną ceną.
+
+[Powrót do Spisu Treści](#spis-treści--contents)
 
 #### Potwierdzenie Zamówienia
 
 - Po przeglądzie podsumowania użytkownik może potwierdzić zamówienie. Formularz jest walidowany i wyświetla komunikaty o brakujących danych.
 - W określonych przypadkach po potwierdzeniu zamówienia wyświetlane są dodatkowe informacje specjalne.
 
+[Powrót do Spisu Treści](#spis-treści--contents)
+
 #### Powrót do Strony Głównej
 
 - Poprzez kliknięcie na logo lub przycisk powrotu użytkownik może w dowolnym momencie wrócić do strony głównej.
 
 **UWAGA:** W aplikacji użyto zdjęć ze strony lego.com – wszelkie prawa autorskie do tych zdjęć posiada firma LEGO. Użytek tych zdjęć jest wyłącznie na cel edukacyjny.
+
+[Powrót do Spisu Treści](#spis-treści--contents)
 
 ---
 
@@ -74,6 +88,8 @@ The application was created for the purpose of completing postgraduate studies 2
 Link to the application: [https://carproject.niklassmolen.pl/](https://carproject.niklassmolen.pl/)
 
 The application is fully responsive.
+
+[Back to Contents](#spis-treści--contents)
 
 ### Main Functions
 
@@ -86,10 +102,14 @@ The application is fully responsive.
 - The application allows easy addition of new cars, accessories, and pick-up locations by updating the `carsData.js` file.
 - Cars are validated, and if, for example, the price format is incorrect - they will not be displayed, and a warning will be shown in the console [demonstrated with an example].
 
+[Back to Contents](#spis-treści--contents)
+
 #### Selecting a Car to Order
 
 - After selecting a car, the user can proceed to order by selecting additional accessories.
 - Accessories are common to all cars or individual for a given model, with one of the accessories allowing the selection of an individual color.
+
+[Back to Contents](#spis-treści--contents)
 
 #### Order Management
 
@@ -98,14 +118,20 @@ The application is fully responsive.
 - Orders that have been started are saved in local storage so they can be returned to later.
 - Local storage is cleared after the order is placed.
 
+[Back to Contents](#spis-treści--contents)
+
 #### Order Summary
 
 - Before placing the order, the user sees a summary with the selected car, accessories, and the final price.
+
+[Back to Contents](#spis-treści--contents)
 
 #### Order Confirmation
 
 - After reviewing the summary, the user can confirm the order. The form is validated and displays messages about missing data.
 - In some cases, additional special information is displayed after order confirmation.
+
+[Back to Contents](#spis-treści--contents)
 
 #### Back to Home
 
@@ -113,4 +139,4 @@ The application is fully responsive.
 
 **NOTE:** The application uses photos from lego.com - all copyrights to these photos belong to LEGO. The use of these photos is for educational purposes only.
 
----
+[Back to Contents](#spis-treści--contents)
