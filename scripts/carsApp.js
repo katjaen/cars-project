@@ -17,10 +17,15 @@ const paymentMethodInputs = document.querySelectorAll(
 	'input[name="paymentMethod"]'
 );
 const confirmOrderButton = document.getElementById("form-confirm-btn");
+const form = document.getElementById("car-order-form");
 
-const fullNameErrorMessage = document.getElementById("fullname-invalid");
-const pickupPlaceErrorMessage = document.getElementById("pickup-invalid");
-const paymentErrorMessage = document.getElementById("payment-invalid");
+const fullNameErrorMessage = document.getElementById("fullname-is-invalid");
+const pickupPlaceErrorMessage = document.getElementById("pickup-is-invalid");
+const pickupDateErrorMessage = document.getElementById(
+	"pickup-date-is-invalid"
+);
+const paymentErrorMessage = document.getElementById("payment-is-invalid");
+const formErrorMessage = document.getElementById("form-is-invalid");
 
 const fullNameRegex = /^[\p{L}]+(?:['-][\p{L}]+)* [\p{L}]+(?:['-][\p{L}]+)*$/u;
 const minimumDateForPickup = new Date();
@@ -60,7 +65,9 @@ function attachGlobalEventListeners() {
 		".back-home-btn, .logo-clickable"
 	);
 	backHomeButtons.forEach(button =>
-		button.addEventListener("click", handleGoHomeClick)
+		button.addEventListener("click", e => {
+			handleGoHomeClick(e);
+		})
 	);
 }
 function handleGoHomeClick() {
@@ -458,57 +465,99 @@ function showPurchaseExtraMessage(purchaseSummary) {
 }
 
 // functions for sorting car cards by brand
-function setupBrandSorting(
-	sortButtonElement,
-	optionsContainerElement,
-	optionsListElement
-) {
-	const getUniqueBrands = cars => [...new Set(cars.map(car => car.brand))];
-	const createBrandOption = brand => {
-		const option = document.createElement("li");
-		option.textContent = brand;
-		option.classList.add("brand-option");
-		option.dataset.brand = brand;
-		return option;
-	};
-	const filterCarsByBrand = (cars, brand) =>
-		cars.filter(car => car.brand === brand);
 
-	let isSorted = false;
+// Funkcje pomocnicze
+function getUniqueBrands(cars) {
+	return [...new Set(cars.map(car => car.brand))];
+}
 
-	sortButtonElement.addEventListener("click", () => {
-		isSorted = !isSorted;
-		if (isSorted) {
-			const uniqueBrands = getUniqueBrands(processedCarsData);
-			optionsListElement.innerHTML = "";
-			optionsListElement.appendChild(createBrandOption("All brands"));
-			uniqueBrands.forEach(brand =>
-				optionsListElement.appendChild(createBrandOption(brand))
-			);
-			optionsContainerElement.hidden = false;
-		} else {
-			optionsContainerElement.hidden = true;
+function createBrandOption(brand) {
+	const option = document.createElement("li");
+	option.textContent = brand;
+	option.classList.add("brand-option");
+	option.dataset.brand = brand;
+	option.setAttribute("role", "option");
+	return option;
+}
+
+function populateBrandOptions(listElement, brands) {
+	listElement.innerHTML = "";
+	["All brands", ...brands].forEach(brand =>
+		listElement.appendChild(createBrandOption(brand))
+	);
+}
+
+function toggleOptionsVisibility(container, button, show) {
+	container.hidden = !show;
+	button.setAttribute("aria-expanded", show);
+}
+
+function displayFilteredCars(brand, carsData) {
+	const cars =
+		brand === "All brands"
+			? carsData
+			: carsData.filter(car => car.brand === brand);
+
+	appendCarCardsToContainer(null, cars);
+
+	if (brand !== "All brands") {
+		document
+			.querySelectorAll(`.car-card[data-brand="${brand}"]`)
+			.forEach(card => card.setAttribute("sorted", ""));
+	}
+}
+
+function closeOptions(container, button, stateObj) {
+	stateObj.isOpen = false;
+	toggleOptionsVisibility(container, button, false);
+}
+
+// Główna funkcja setup
+function setupBrandSorting(sortButton, optionsContainer, optionsList) {
+	const state = { isOpen: false };
+
+	// Inicjalizacja ARIA
+	sortButton.setAttribute("aria-expanded", "false");
+	sortButton.setAttribute("aria-haspopup", "listbox");
+	optionsList.setAttribute("role", "listbox");
+
+	sortButton.addEventListener("click", e => {
+		e.stopPropagation();
+		state.isOpen = !state.isOpen;
+
+		if (state.isOpen) {
+			const brands = getUniqueBrands(processedCarsData);
+			populateBrandOptions(optionsList, brands);
+		}
+
+		toggleOptionsVisibility(optionsContainer, sortButton, state.isOpen);
+	});
+
+	// Wybór opcji z listy
+	optionsContainer.addEventListener("click", e => {
+		const option = e.target.closest(".brand-option");
+		if (!option) return;
+
+		displayFilteredCars(option.dataset.brand, processedCarsData);
+		closeOptions(optionsContainer, sortButton, state);
+	});
+
+	// Zamknięcie menu przy kliknięciu poza nim
+	document.addEventListener("click", e => {
+		if (
+			state.isOpen &&
+			!optionsContainer.contains(e.target) &&
+			!sortButton.contains(e.target)
+		) {
+			closeOptions(optionsContainer, sortButton, state);
 		}
 	});
 
-	optionsContainerElement.addEventListener("click", event => {
-		const selectedOption = event.target.closest(".brand-option");
-		if (selectedOption) {
-			const selectedBrand = selectedOption.dataset.brand;
-			if (selectedBrand === "All brands") {
-				appendCarCardsToContainer();
-			} else {
-				const filteredCars = filterCarsByBrand(
-					processedCarsData,
-					selectedBrand
-				);
-				appendCarCardsToContainer(null, filteredCars);
-				document
-					.querySelectorAll(`.car-card[data-brand="${selectedBrand}"]`)
-					.forEach(card => card.setAttribute("sorted", ""));
-			}
-			isSorted = false;
-			optionsContainerElement.hidden = true;
+	// Zamknięcie menu klawiszem Escape
+	document.addEventListener("keydown", e => {
+		if (e.key === "Escape" && state.isOpen) {
+			closeOptions(optionsContainer, sortButton, state);
+			sortButton.focus(); // Przywróć focus do przycisku
 		}
 	});
 }
@@ -522,7 +571,73 @@ if (sortButton && optionsWrapper && optionsList) {
 }
 
 // functions for form order
-function handleFormSubmission() {
+
+// function handleFormSubmission() {
+// 	const customerName = fullNameInput.value.trim();
+// 	const pickupDate = pickupDateInput.value;
+// 	const selectedPickupPlace = pickupPlaceInput.value;
+// 	const selectedPaymentMethod = document.querySelector(
+// 		'input[name="paymentMethod"]:checked'
+// 	);
+
+// 	const isFormValid = validateForm();
+
+// 	if (isFormValid && chosenCar) {
+// 		const daysToPickup = calculateDaysToPickup(pickupDate);
+// 		const selectedPaymentMethodLabel = selectedPaymentMethod
+// 			? selectedPaymentMethod.labels[0].textContent.trim()
+// 			: "";
+// 		const purchaseSummary = {
+// 			car: chosenCar,
+// 			customerName,
+// 			pickupDate,
+// 			pickupPlace: selectedPickupPlace,
+// 			daysToPickup,
+// 			paymentMethod: selectedPaymentMethodLabel,
+// 		};
+
+// 		updatePurchaseSummary(purchaseSummary);
+// 		toggleElementAttribute(carOrderSection, "hidden", true);
+// 		toggleElementAttribute(purchaseSummarySection, "hidden", false);
+
+// 		console.log("Before clearing local storage:", localStorage);
+// 		clearLocalStorage();
+// 		console.log("After clearing local storage:", localStorage);
+
+// 		const selectedCarCard = document.querySelector(".car-card[chosen]");
+// 		if (selectedCarCard) {
+// 			selectedCarCard.querySelector(".car-card__btns-container").hidden = true;
+// 			selectedCarCard.querySelector(".car-price").hidden = true;
+// 		}
+
+// 		fullNameInput.value = "";
+// 		pickupDateInput.value = "";
+// 		pickupPlaceInput.value = "";
+// 		paymentMethodInputs.forEach(input => {
+// 			input.checked = false;
+// 		});
+// 	}
+// }
+
+let formWasSubmitted = false;
+
+let pickupDateTouched = false;
+
+pickupDateInput.addEventListener("blur", () => {
+	pickupDateTouched = true;
+	validateForm();
+});
+
+pickupDateInput.addEventListener("input", () => {
+	pickupDateTouched = true;
+	validateForm();
+});
+
+function handleFormSubmission(e) {
+	e.preventDefault();
+
+	formWasSubmitted = true;
+
 	const customerName = fullNameInput.value.trim();
 	const pickupDate = pickupDateInput.value;
 	const selectedPickupPlace = pickupPlaceInput.value;
@@ -532,41 +647,45 @@ function handleFormSubmission() {
 
 	const isFormValid = validateForm();
 
-	if (isFormValid && chosenCar) {
-		const daysToPickup = calculateDaysToPickup(pickupDate);
-		const selectedPaymentMethodLabel = selectedPaymentMethod
-			? selectedPaymentMethod.labels[0].textContent.trim()
-			: "";
-		const purchaseSummary = {
-			car: chosenCar,
-			customerName,
-			pickupDate,
-			pickupPlace: selectedPickupPlace,
-			daysToPickup,
-			paymentMethod: selectedPaymentMethodLabel,
-		};
-
-		updatePurchaseSummary(purchaseSummary);
-		toggleElementAttribute(carOrderSection, "hidden", true);
-		toggleElementAttribute(purchaseSummarySection, "hidden", false);
-
-		console.log("Before clearing local storage:", localStorage);
-		clearLocalStorage();
-		console.log("After clearing local storage:", localStorage);
-
-		const selectedCarCard = document.querySelector(".car-card[chosen]");
-		if (selectedCarCard) {
-			selectedCarCard.querySelector(".car-card__btns-container").hidden = true;
-			selectedCarCard.querySelector(".car-price").hidden = true;
-		}
-
-		fullNameInput.value = "";
-		pickupDateInput.value = "";
-		pickupPlaceInput.value = "";
-		paymentMethodInputs.forEach(input => {
-			input.checked = false;
-		});
+	if (!isFormValid || !chosenCar) {
+		form.classList.add("form-is-invalid"); // ← KROK 1a
+		return;
 	}
+
+	const daysToPickup = calculateDaysToPickup(pickupDate);
+	const selectedPaymentMethodLabel = selectedPaymentMethod
+		? selectedPaymentMethod.labels[0].textContent.trim()
+		: "";
+
+	const purchaseSummary = {
+		car: chosenCar,
+		customerName,
+		pickupDate,
+		pickupPlace: selectedPickupPlace,
+		daysToPickup,
+		paymentMethod: selectedPaymentMethodLabel,
+	};
+
+	updatePurchaseSummary(purchaseSummary);
+	toggleElementAttribute(carOrderSection, "hidden", true);
+	toggleElementAttribute(purchaseSummarySection, "hidden", false);
+
+	console.log("Before clearing local storage:", localStorage);
+	clearLocalStorage();
+	console.log("After clearing local storage:", localStorage);
+
+	const selectedCarCard = document.querySelector(".car-card[chosen]");
+	if (selectedCarCard) {
+		selectedCarCard.querySelector(".car-card__btns-container").hidden = true;
+		selectedCarCard.querySelector(".car-price").hidden = true;
+	}
+
+	fullNameInput.value = "";
+	pickupDateInput.value = "";
+	pickupPlaceInput.value = "";
+	paymentMethodInputs.forEach(input => {
+		input.checked = false;
+	});
 }
 
 function attachFormEventListeners() {
@@ -581,18 +700,31 @@ function attachFormEventListeners() {
 function attachValidationListeners() {
 	attachFullNameValidation();
 	setMinimumAndCurrentDateForPickupDateInput();
-	preventEmptyInputForPickupDateInput();
 	hideOrShowPaymentErrorMessage();
 	hideOrShowPickupPlaceErrorMessage();
 }
 function attachFullNameValidation() {
-	fullNameInput.addEventListener("input", function () {
-		const isFullNameValid = fullNameRegex.test(fullNameInput.value.trim());
-		fullNameInput.toggleAttribute("valid", isFullNameValid);
-		fullNameInput.toggleAttribute("invalid", !isFullNameValid);
-		fullNameErrorMessage.hidden = isFullNameValid;
+	let touched = false;
+
+	fullNameInput.addEventListener("blur", function () {
+		touched = true;
+		validate();
 	});
+
+	fullNameInput.addEventListener("input", function () {
+		if (!touched) return;
+		validate();
+	});
+
+	function validate() {
+		const isFullNameValid = fullNameRegex.test(fullNameInput.value.trim());
+
+		fullNameInput.toggleAttribute("is-valid", isFullNameValid);
+		fullNameInput.toggleAttribute("is-invalid", !isFullNameValid);
+		fullNameErrorMessage.hidden = isFullNameValid;
+	}
 }
+
 function addPickupPlacesToPickupPlaceInput() {
 	const existingOptions = pickupPlaceInput.querySelectorAll("option");
 	const optionValues = Array.from(existingOptions).map(option => option.value);
@@ -605,13 +737,7 @@ function addPickupPlacesToPickupPlaceInput() {
 		}
 	});
 }
-function preventEmptyInputForPickupDateInput() {
-	pickupDateInput.addEventListener("input", function () {
-		if (pickupDateInput.value === "") {
-			return;
-		}
-	});
-}
+
 function setMinimumAndCurrentDateForPickupDateInput() {
 	const dateString = minimumDateForPickup.toISOString().split("T")[0];
 	const isIOS = navigator.userAgent.match(/ipad|iphone/i);
@@ -649,8 +775,8 @@ function validateForm() {
 	let isFormValid = true;
 
 	const isFullNameValid = fullNameRegex.test(fullNameInput.value.trim());
-	fullNameInput.toggleAttribute("valid", isFullNameValid);
-	fullNameInput.toggleAttribute("invalid", !isFullNameValid);
+	fullNameInput.toggleAttribute("is-valid", isFullNameValid);
+	fullNameInput.toggleAttribute("is-invalid", !isFullNameValid);
 	fullNameErrorMessage.hidden = isFullNameValid;
 
 	if (pickupDateInput.value === "") {
@@ -662,6 +788,15 @@ function validateForm() {
 	if (!hasPickupPlace) {
 		isFormValid = false;
 	}
+	// const isDateValid = pickupDateInput.value !== "";
+	// pickupDateErrorMessage.hidden = isDateValid;
+	// if (!isDateValid) isFormValid = false;
+	const selectedDate = new Date(pickupDateInput.value);
+	const isDateValid =
+		selectedDate >= minimumDateForPickup ||
+		pickupDateInput.value === minimumDateForPickup.toISOString().split("T")[0];
+	pickupDateErrorMessage.hidden = isDateValid;
+	if (!isDateValid) isFormValid = false;
 
 	const hasSelectedPaymentMethod = document.querySelector(
 		'input[name="paymentMethod"]:checked'
@@ -669,6 +804,9 @@ function validateForm() {
 	paymentErrorMessage.hidden = hasSelectedPaymentMethod;
 	if (!hasSelectedPaymentMethod) {
 		isFormValid = false;
+	}
+	if (formWasSubmitted) {
+		formErrorMessage.hidden = isFormValid;
 	}
 
 	return isFormValid;

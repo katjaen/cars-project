@@ -17,9 +17,11 @@
 <body>
     <header class="cars-header">
         <div class="cars-header__nav-row"></div>
-        <figure class="cars-header__logo logo-clickable parent-clickable">
-            <img src="./assets/cars-logo.svg" alt="Logo Cars" />
-        </figure>
+        <a href="#" class="logo-clickable parent-clickable" aria-label="Przejdź do strony głównej">
+            <figure class="cars-header__logo">
+                <img src="./assets/cars-logo.svg" alt="Logo Cars">
+            </figure>
+        </a>
         <div class="cars-header__line"></div>
     </header>
     <div id="welcome-popup" aria-live="assertive" aria-atomic="true">
@@ -101,7 +103,8 @@
             </li>
         </template>
         <aside class="sorting content-width-container">
-            <button id="sort-by-brand-btn" class="sorting__btn btn--transparent">
+            <button id="sort-by-brand-btn" class="sorting__btn btn--transparent" aria-haspopup="listbox"
+                aria-expanded="false" aria-controls="brand-options-wrapper">
                 <span>Sort by brand</span>
                 <span class="ti ti-angle-down"></span>
             </button>
@@ -143,6 +146,9 @@
                                 minlength="5" title="Required format: First name Surname separated by space"
                                 placeholder="e.g. Hatty Ford-Lego" required aria-label="Enter your full name">
                         </div>
+                        <p id="fullname-is-invalid" class="is-invalid-message small" hidden>
+                            Please enter your full name. Name and Surname should be separated by space.
+                        </p>
                     </fieldset>
                     <fieldset id="pickup-details-field">
                         <legend id="pickup-details" class="medium">Order details: <span
@@ -155,6 +161,8 @@
                                 <!-- added from pickupPlaces by js -->
                             </select>
                         </div>
+                        <p id="pickup-is-invalid" class="is-invalid-message small" hidden>Please select your pick-up
+                            location.</p>
                         <div class="form-row">
                             <label id="pickup-date-label" required for="pickup-date">Car pickup date. The first possible
                                 one
@@ -162,6 +170,8 @@
                             <input id="pickup-date" type="date" required
                                 aria-label="Select a date (minimum 14 days from today)">
                         </div>
+                        <p id="pickup-date-is-invalid" class="is-invalid-message small" hidden>Please select your
+                            pick-up time (minimum 14 days from today).</p>
                     </fieldset>
                     <fieldset id="available-accessories-field">
                         <legend id="accessories" class="medium">Additional accessories:</legend>
@@ -193,6 +203,8 @@
                                 </li>
                             </ul>
                         </div>
+                        <p id="payment-is-invalid" class="is-invalid-message small" hidden>Please select a payment
+                            method.</p>
                     </fieldset>
                     <hr class="c-hr">
                     <fieldset id="order-summary-field" aria-label="Order summary list">
@@ -212,13 +224,8 @@
                         </div>
                     </fieldset>
                     <button id="form-confirm-btn" type="button" aria-label="Confirm order">Confirm order</button>
-                    <p id="fullname-invalid" class="invalid-message small" hidden>
-                        Please enter your full name. Name and Surname should be separated by space.
-                    </p>
-                    <p id="pickup-invalid" class="invalid-message small" hidden>Please select your pick-up location and
-                        make
-                        sure your pick-up time is suitable.</p>
-                    <p id="payment-invalid" class="invalid-message small" hidden>Please select a payment method.</p>
+                    <p id="form-is-invalid" class="is-invalid-message small" hidden>Please complete the required
+                        fields.</p>
                 </form>
             </div>
         </section>
@@ -251,7 +258,7 @@
                     </p>
                     <div id="miser-message" hidden>
                         <h2 class="sr-only">Miser's payment type</h2>
-                        <p class="footnote invalid-message">
+                        <p class="footnote is-invalid-message">
                             Unfortunately - you have chosen Heaven as your pick-up location and a miser's payment type
                             (not sweet and no tip). Misers are not allowed in Heaven (it is beyond our control), so we
                             kindly suggest that you pick up your car in Hell (they like sour jelly bears there). If this
@@ -264,7 +271,7 @@
                     </div>
                     <div id="generous-message" hidden>
                         <h2 class="sr-only">Generous payment type</h2>
-                        <p class="footnote invalid-message">
+                        <p class="footnote is-invalid-message">
                             Fortunately, you chose a generous payment method! Generous people go to Heaven, so as a
                             reward you can pick up your order in Heaven and stay there as long as you want, at our
                             expense. If you are not interested, you can of course go to Hell.
@@ -301,9 +308,11 @@
             <p class="copy-text">Copyright © <span id="current-year"></span> Cars</p>
         </div>
         <div class="footer-row-bottom">
-            <figure class="cars-footer__logo logo-clickable parent-clickable">
-                <img src="./assets/cars-logo.svg" alt="Cars logo"></img>
-            </figure>
+            <a href="#" class="logo-clickable parent-clickable" aria-label="Przejdź do strony głównej">
+                <figure class="cars-footer__logo">
+                    <img src="./assets/cars-logo.svg" alt="Cars logo"></img>
+                </figure>
+            </a>
         </div>
     </footer>
 

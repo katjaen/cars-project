@@ -33,7 +33,7 @@
 #final-countdown {
 	color: var(--white);
 	text-align: center;
-	background-color: var(--invalid);
+	background-color: var(--is-invalid);
 	margin: auto;
 	border-radius: 50%;
 	padding-top: var(--space-s);
@@ -57,6 +57,7 @@
 	min-height: 250px;
 	padding: var(--space-xs);
 	letter-spacing: 1px;
+	transition: transform 0.9s ease;
 }
 .car-card[sorted],
 .car-card[chosen] {
@@ -80,6 +81,7 @@
 .car-card__btns-container {
 	z-index: 998;
 }
+
 .car-card:not([chosen]):not([sorted]) .car-card__image {
 	max-height: 80%;
 	transition: transform 0.9s ease;
@@ -172,7 +174,9 @@
 	.car-card__details-container {
 	width: 100%;
 	opacity: 0;
+	transition: opacity 0.5s ease-in-out;
 }
+
 .car-card:not([chosen]):not(.car-card[sorted])
 	.car-card__details-container:hover {
 	opacity: 1;

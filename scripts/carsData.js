@@ -167,13 +167,13 @@ cars.forEach(car => {
 		const value = car[key];
 		if (value === undefined || value === "" || value === -1 || value === 0) {
 			console.warn(
-				`Car with id ${car.id} doesn't have valid value for ${key} key [info is used to show that validation is working]`
+				`Car with id ${car.id} doesn't have is-valid value for ${key} key [info is used to show that validation is working]`
 			);
 			return false;
 		}
 		if (key === "price" && typeof value !== "number") {
 			console.warn(
-				`Car with id ${car.id} has invalid value for car price [info is used to show that validation is working]`
+				`Car with id ${car.id} has is-invalid value for car price [info is used to show that validation is working]`
 			);
 			return false;
 		}
@@ -182,7 +182,7 @@ cars.forEach(car => {
 	const accessoriesDataIsValid = car.accessories.every(accessory => {
 		if (typeof accessory.price !== "number" || accessory.price < 0) {
 			console.warn(
-				`Car with id ${car.id} has invalid value for accessory price [info is used to show that validation is working]`
+				`Car with id ${car.id} has is-invalid value for accessory price [info is used to show that validation is working]`
 			);
 			return false;
 		}
