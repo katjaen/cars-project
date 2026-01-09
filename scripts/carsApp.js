@@ -45,6 +45,7 @@ function initApp() {
 	initializeWelcomePopup();
 	handleGoHomeClick();
 	attachGlobalEventListeners();
+	initLogoLights();
 	restoreUserDataFromStorage();
 	restoreOrdersFromStorage();
 	clearLocalStorageEvery24Hours();
@@ -572,53 +573,6 @@ if (sortButton && optionsWrapper && optionsList) {
 
 // functions for form order
 
-// function handleFormSubmission() {
-// 	const customerName = fullNameInput.value.trim();
-// 	const pickupDate = pickupDateInput.value;
-// 	const selectedPickupPlace = pickupPlaceInput.value;
-// 	const selectedPaymentMethod = document.querySelector(
-// 		'input[name="paymentMethod"]:checked'
-// 	);
-
-// 	const isFormValid = validateForm();
-
-// 	if (isFormValid && chosenCar) {
-// 		const daysToPickup = calculateDaysToPickup(pickupDate);
-// 		const selectedPaymentMethodLabel = selectedPaymentMethod
-// 			? selectedPaymentMethod.labels[0].textContent.trim()
-// 			: "";
-// 		const purchaseSummary = {
-// 			car: chosenCar,
-// 			customerName,
-// 			pickupDate,
-// 			pickupPlace: selectedPickupPlace,
-// 			daysToPickup,
-// 			paymentMethod: selectedPaymentMethodLabel,
-// 		};
-
-// 		updatePurchaseSummary(purchaseSummary);
-// 		toggleElementAttribute(carOrderSection, "hidden", true);
-// 		toggleElementAttribute(purchaseSummarySection, "hidden", false);
-
-// 		console.log("Before clearing local storage:", localStorage);
-// 		clearLocalStorage();
-// 		console.log("After clearing local storage:", localStorage);
-
-// 		const selectedCarCard = document.querySelector(".car-card[chosen]");
-// 		if (selectedCarCard) {
-// 			selectedCarCard.querySelector(".car-card__btns-container").hidden = true;
-// 			selectedCarCard.querySelector(".car-price").hidden = true;
-// 		}
-
-// 		fullNameInput.value = "";
-// 		pickupDateInput.value = "";
-// 		pickupPlaceInput.value = "";
-// 		paymentMethodInputs.forEach(input => {
-// 			input.checked = false;
-// 		});
-// 	}
-// }
-
 let formWasSubmitted = false;
 
 let pickupDateTouched = false;
@@ -1014,4 +968,77 @@ function toggleElementAttribute(element, attribute, value) {
 	} else {
 		element.removeAttribute(attribute);
 	}
+}
+
+// logo animation
+
+function initLogoLights() {
+	const logo = document.querySelector(".cars-header__logo");
+	const leftLight = document.querySelector(".left-light");
+	const rightLight = document.querySelector(".right-light");
+
+	if (!logo || !leftLight || !rightLight) return;
+
+	// Wyłącz na urządzeniach dotykowych
+	const isTouchDevice =
+		"ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+	if (isTouchDevice) {
+		leftLight.style.transform = "scale(3.6) rotate(0deg)";
+		rightLight.style.transform = "scale(4.6) rotate(0deg)";
+		return;
+	}
+
+	// Desktop - pełna interaktywność
+	const baseScaleLeft = 3.6;
+	const baseScaleRight = 4.6;
+
+	let vw = window.innerWidth;
+	let vh = window.innerHeight;
+	let maxDistance = Math.sqrt(vw * vw + vh * vh) / 2;
+	let logoCenter = { x: 0, y: 0 };
+
+	const updateCache = () => {
+		vw = window.innerWidth;
+		vh = window.innerHeight;
+		maxDistance = Math.sqrt(vw * vw + vh * vh) / 2;
+
+		const rect = logo.getBoundingClientRect();
+		logoCenter.x = rect.left + rect.width / 2;
+		logoCenter.y = rect.top + rect.height / 2;
+	};
+
+	updateCache();
+
+	let resizeTimeout;
+	window.addEventListener("resize", () => {
+		clearTimeout(resizeTimeout);
+		resizeTimeout = setTimeout(updateCache, 100);
+	});
+
+	let rafId = null;
+
+	document.addEventListener("mousemove", e => {
+		if (rafId) return;
+
+		rafId = requestAnimationFrame(() => {
+			const normalizedX = (e.clientX / vw - 0.5) * 2;
+			const rotation = -normalizedX * 95;
+
+			const dx = e.clientX - logoCenter.x;
+			const dy = e.clientY - logoCenter.y;
+			const distance = Math.sqrt(dx * dx + dy * dy);
+			const distanceFactor = Math.min(distance / maxDistance, 1);
+			const scaleFactor = 0.65 + distanceFactor * 0.85;
+
+			leftLight.style.transform = `scale(${
+				baseScaleLeft * scaleFactor
+			}) rotate(${rotation}deg)`;
+			rightLight.style.transform = `scale(${
+				baseScaleRight * scaleFactor
+			}) rotate(${rotation}deg)`;
+
+			rafId = null;
+		});
+	});
 }

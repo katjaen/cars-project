@@ -322,7 +322,26 @@ a:has(.cars-header__logo) {
 
 .cars-header__logo {
 	max-height: 100px;
-	transform: scale(70%) translateX(-10px);
+	transform: scale(0.7);
+}
+
+.left-light,
+.right-light {
+	position: absolute;
+	transform-origin: 50% 0;
+	transition: transform 0.1s ease-out;
+	will-change: transform;
+}
+.left-light {
+	top: 85px;
+	left: 34px;
+	transform: scale(2.8); /* rotate(35deg); */
+}
+
+.right-light {
+	top: 85px;
+	left: 130px;
+	transform: scale(3.6); /* rotate(7deg); */
 }
 
 .cars-header__line {

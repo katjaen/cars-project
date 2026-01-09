@@ -18,9 +18,16 @@
     <header class="cars-header">
         <div class="cars-header__nav-row"></div>
         <a href="#" class="logo-clickable parent-clickable" aria-label="Przejdź do strony głównej">
-            <figure class="cars-header__logo">
-                <img src="./assets/cars-logo.svg" alt="Logo Cars">
-            </figure>
+            <div class="cars-header__logo">
+                <img src="./assets/cars-logo__car.svg" alt="Logo Cars" class="car-image">
+                <svg class="left-light" width="40" height="60" viewBox="-25 0 50 70" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0,0 L-12,50 A12,12 0 0,0 12,50 L0,0" fill="var(--accent)" opacity="0.8" />
+                </svg>
+                <svg class="right-light" width="40" height="60" viewBox="-25 0 50 70"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0,0 L-12,50 A12,12 0 0,0 12,50 L0,0" fill="var(--accent)" opacity="0.8" />
+                </svg>
+            </div>
         </a>
         <div class="cars-header__line"></div>
     </header>
