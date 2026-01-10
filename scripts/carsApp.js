@@ -979,17 +979,16 @@ function initLogoLights() {
 
 	if (!logo || !leftLight || !rightLight) return;
 
-	// Wyłącz na urządzeniach dotykowych
 	const isTouchDevice =
 		"ontouchstart" in window || navigator.maxTouchPoints > 0;
+	const isTabletOrMobile = window.innerWidth < 1024;
 
-	if (isTouchDevice) {
-		leftLight.style.transform = "scale(3.6) rotate(0deg)";
-		rightLight.style.transform = "scale(4.6) rotate(0deg)";
+	if (isTouchDevice || isTabletOrMobile) {
+		leftLight.style.transform = "scale(3.6) rotate(35deg)";
+		rightLight.style.transform = "scale(4.6) rotate(7deg)";
 		return;
 	}
 
-	// Desktop - pełna interaktywność
 	const baseScaleLeft = 3.6;
 	const baseScaleRight = 4.6;
 
