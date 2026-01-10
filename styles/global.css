@@ -504,16 +504,30 @@ legend {
 	background-color: transparent;
 }
 
-#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch-wrapper {
-	display: inline-block;
+/* Base input */
+#color-picker[data-accessory-id="addColor"] {
 	width: var(--space-x);
 	height: var(--space-x);
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	overflow: hidden;
+}
+
+/* Wrapper (tylko webkit) */
+#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch-wrapper {
 	padding: 0;
 	border-radius: 50%;
 	background-color: transparent;
-	position: relative;
 	box-shadow: 0 2px 4px 1px var(--pale);
 	border: 2.5px solid var(--white);
+}
+
+/* Swatch - obie przeglądarki razem ✅ */
+#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch,
+#color-picker[data-accessory-id="addColor"]::-moz-color-swatch {
+	border-radius: 50%;
+	border: none;
 }
 
 #color-picker[data-accessory-id="addColor"]::-webkit-color-swatch {
