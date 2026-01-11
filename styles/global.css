@@ -19,7 +19,7 @@
 	--is-valid: #6c9d6c;
 	--is-invalid: #e66d6d;
 	--link: var(--base);
-	--focus: var(--accent);
+	--focus: #28c0ac;
 
 	--individual-color: #fec7c7;
 
@@ -492,59 +492,36 @@ legend {
 	padding-bottom: var(--space-xs);
 }
 #color-picker[data-accessory-id="addColor"] {
-	width: var(--space-x);
-	height: var(--space-x);
-	border-radius: 50%;
-	border: none;
-	outline: none;
-	padding: 0;
-	position: relative;
-	margin-right: var(--space-xs);
-	vertical-align: middle;
-	background-color: transparent;
-}
-
-/* Base input */
-#color-picker[data-accessory-id="addColor"] {
+	-webkit-appearance: none;
+	appearance: none;
 	width: var(--space-x);
 	height: var(--space-x);
 	border: none;
 	border-radius: 50%;
 	cursor: pointer;
 	overflow: hidden;
+	padding: 0;
+	background-color: transparent;
+	outline: none;
+	margin-right: var(--space-xs);
+	vertical-align: middle;
 }
 
-/* Wrapper (tylko webkit) */
-#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch-wrapper {
+/* Webkit - działa jak chcesz */
+#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch-wrapper,
+#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch {
 	padding: 0;
 	border-radius: 50%;
-	background-color: transparent;
 	box-shadow: 0 2px 4px 1px var(--pale);
 	border: 2.5px solid var(--white);
 }
 
-/* Swatch - obie przeglądarki razem ✅ */
-#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch,
+/* ✅ DODAJ TO - Firefox swatch */
 #color-picker[data-accessory-id="addColor"]::-moz-color-swatch {
+	padding: 0;
 	border-radius: 50%;
-	border: none;
-}
-
-#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch {
-	width: 100%;
-	height: 100%;
-	border-radius: 50%;
-	background-color: transparent;
-	border: none;
-	pointer-events: none;
-}
-
-#color-picker[data-accessory-id="addColor"]::-webkit-color-swatch::after {
-	content: "";
-	display: block;
-	width: 100%;
-	height: 100%;
-	border-radius: 50%;
+	box-shadow: 0 2px 4px 1px var(--pale);
+	border: 2.5px solid var(--white);
 }
 
 .accessory-color-if-chosen {
